@@ -329,6 +329,21 @@ const NAV_LINKS = [
   { label: 'Contact',  id: 'contact' },
 ] as const;
 
+// Scroll fires far more often than we can paint. Coalesce handlers onto one
+// animation frame and hand back a matching cleanup.
+function onScrollFrame(handler: () => void): () => void {
+  let frame = 0;
+  const listener = () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => { frame = 0; handler(); });
+  };
+  window.addEventListener('scroll', listener, { passive: true });
+  return () => {
+    if (frame) cancelAnimationFrame(frame);
+    window.removeEventListener('scroll', listener);
+  };
+}
+
 function NavBar() {
   const [scrolled,  setScrolled]  = useState<boolean>(false);
   const [isDark,    setIsDark]    = useState<boolean>(false);
@@ -339,9 +354,7 @@ function NavBar() {
     const saved = localStorage.getItem('theme');
     const isMobile = window.innerWidth <= 768;
     if (saved === 'dark' && !isMobile) { document.documentElement.classList.add('dark'); setIsDark(true); }
-    const fn = () => setScrolled(window.scrollY > 48);
-    window.addEventListener('scroll', fn, { passive: true });
-    return () => window.removeEventListener('scroll', fn);
+    return onScrollFrame(() => setScrolled(window.scrollY > 48));
   }, []);
 
   // Track active section by scroll position
@@ -355,9 +368,8 @@ function NavBar() {
       }
       setActiveId(current);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    return onScrollFrame(onScroll);
   }, []);
 
   useEffect(() => {
