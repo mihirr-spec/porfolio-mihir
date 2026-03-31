@@ -384,7 +384,13 @@ function NavBar() {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (!menuOpen) return () => { document.body.style.overflow = ''; };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
   }, [menuOpen]);
 
   const toggleTheme = () => {
@@ -501,7 +507,9 @@ function NavBar() {
           <ThemeBtn />
           <button
             onClick={() => setMenuOpen(o => !o)}
-            aria-label="Menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}
           >
             <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--text)', borderRadius: '2px', transition: 'transform 0.3s', transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none' }}/>
@@ -513,7 +521,7 @@ function NavBar() {
 
       {/* Mobile full-screen menu */}
       {menuOpen && (
-        <div className="mobile-menu">
+        <div className="mobile-menu" id="mobile-menu">
           {NAV_LINKS.map(({ label, id }) => (
             <a key={id} href={`#${id}`} onClick={(e) => handleNavClick(e, id)}>{label}</a>
           ))}
