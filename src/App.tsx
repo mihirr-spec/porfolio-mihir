@@ -207,6 +207,13 @@ function Magnet({ children, padding = 100, strength = 3 }: MagnetProps) {
   const [active, setActive] = useState<boolean>(false);
 
   useEffect(() => {
+    // Pointer tracking is pointless on touch screens and unwelcome for anyone
+    // who asked for reduced motion — skip the listener entirely in both cases.
+    const skip =
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      window.matchMedia('(hover: none)').matches;
+    if (skip) return;
+
     const onMove = (e: MouseEvent) => {
       const el = ref.current;
       if (!el) return;
