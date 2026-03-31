@@ -329,6 +329,16 @@ const NAV_LINKS = [
   { label: 'Contact',  id: 'contact' },
 ] as const;
 
+// localStorage throws in private browsing and when cookies are blocked, which
+// would otherwise take the whole nav down with it.
+function readStoredTheme(): string | null {
+  try { return localStorage.getItem('theme'); } catch { return null; }
+}
+
+function storeTheme(theme: string): void {
+  try { localStorage.setItem('theme', theme); } catch { /* storage unavailable */ }
+}
+
 // Scroll fires far more often than we can paint. Coalesce handlers onto one
 // animation frame and hand back a matching cleanup.
 function onScrollFrame(handler: () => void): () => void {
@@ -351,7 +361,7 @@ function NavBar() {
   const [activeId,  setActiveId]  = useState<string>('');
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme');
+    const saved = readStoredTheme();
     const isMobile = window.innerWidth <= 768;
     if (saved === 'dark' && !isMobile) { document.documentElement.classList.add('dark'); setIsDark(true); }
     return onScrollFrame(() => setScrolled(window.scrollY > 48));
@@ -380,7 +390,7 @@ function NavBar() {
   const toggleTheme = () => {
     const nowDark = document.documentElement.classList.toggle('dark');
     setIsDark(nowDark);
-    localStorage.setItem('theme', nowDark ? 'dark' : 'light');
+    storeTheme(nowDark ? 'dark' : 'light');
   };
 
   const smoothScrollTo = (targetY: number, duration = 1000) => {
