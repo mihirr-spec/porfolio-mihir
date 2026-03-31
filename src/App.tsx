@@ -39,6 +39,12 @@ interface LiveProjectButtonProps {
   className?: string;
 }
 
+interface ResumeButtonProps {
+  className?: string;
+  labelClassName?: string;
+  iconSize?: number;
+}
+
 interface TechItem {
   name: string;
   icon: string;
@@ -269,6 +275,42 @@ function LiveProjectButton({ href = '#', className = '' }: LiveProjectButtonProp
   );
 }
 
+const RESUME_FILE = '/MihirSanghvi_resume.pdf';
+
+function DownloadIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+  );
+}
+
+// The hero (desktop + mobile) and the About section all render the same
+// resume CTA — only the padding, text size and icon size differ.
+function ResumeButton({ className = '', labelClassName = 'text-sm', iconSize = 16 }: ResumeButtonProps) {
+  const label = (
+    <>
+      <DownloadIcon size={iconSize} />
+      Download Resume
+    </>
+  );
+  return (
+    <a
+      href={RESUME_FILE}
+      download="MihirSanghvi_resume.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => window.open(RESUME_FILE, '_blank', 'noopener,noreferrer')}
+      className={`resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest ${className}`}
+    >
+      <span className="btn-default inline-flex items-center gap-3">{label}</span>
+      <span className={`btn-hover font-medium uppercase tracking-widest ${labelClassName}`}>{label}</span>
+    </a>
+  );
+}
+
 // ─── NavBar ───────────────────────────────────────────────────
 
 const NAV_LINKS = [
@@ -487,31 +529,7 @@ function HeroSection() {
 
         {/* Desktop-only: resume button directly under heading */}
         <FadeIn delay={0.3} className="hero-desktop-cta">
-          <a
-            href="/MihirSanghvi_resume.pdf"
-            download="MihirSanghvi_resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => window.open('/MihirSanghvi_resume.pdf', '_blank', 'noopener,noreferrer')}
-            className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-10 py-3.5 text-sm"
-          >
-            <span className="btn-default inline-flex items-center gap-3">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download Resume
-            </span>
-            <span className="btn-hover font-medium uppercase tracking-widest text-sm">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download Resume
-            </span>
-          </a>
+          <ResumeButton className="px-10 py-3.5 text-sm" />
         </FadeIn>
 
         {/* Mobile-only: bio text + resume button directly under heading */}
@@ -519,31 +537,7 @@ function HeroSection() {
           <p className="font-medium text-center leading-relaxed" style={{ color: 'var(--text)', fontSize: '0.95rem', maxWidth: '300px' }}>
             A computer science student at Manipal University Jaipur, focusing on building AI-powered platforms, full-stack web applications, and developer-friendly experiences.
           </p>
-          <a
-            href="/MihirSanghvi_resume.pdf"
-            download="MihirSanghvi_resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => window.open('/MihirSanghvi_resume.pdf', '_blank', 'noopener,noreferrer')}
-            className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-8 py-3 text-xs"
-          >
-            <span className="btn-default inline-flex items-center gap-3">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download Resume
-            </span>
-            <span className="btn-hover font-medium uppercase tracking-widest text-xs">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download Resume
-            </span>
-          </a>
+          <ResumeButton className="px-8 py-3 text-xs" labelClassName="text-xs" iconSize={15} />
         </div>
       </div>
     </section>
@@ -798,31 +792,10 @@ function AboutSection() {
           style={{ color: 'var(--text)', maxWidth: '560px', fontSize: 'clamp(1rem, 2vw, 1.35rem)' }}
         />
         <FadeIn delay={0.2}>
-          <a
-            href="/MihirSanghvi_resume.pdf"
-            download="MihirSanghvi_resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => window.open('/MihirSanghvi_resume.pdf', '_blank', 'noopener,noreferrer')}
-            className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-xs sm:text-sm"
-          >
-            <span className="btn-default inline-flex items-center gap-3">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download Resume
-            </span>
-            <span className="btn-hover font-medium uppercase tracking-widest text-xs sm:text-sm">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download Resume
-            </span>
-          </a>
+          <ResumeButton
+            className="px-8 py-3 sm:px-10 sm:py-3.5 text-xs sm:text-sm"
+            labelClassName="text-xs sm:text-sm"
+          />
         </FadeIn>
       </div>
     </section>
