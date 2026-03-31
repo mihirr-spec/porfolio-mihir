@@ -424,3 +424,17 @@
     gap: 20px !important;
   }
 }
+
+/* ── Reduced motion ──
+   Honour the OS-level setting: keep every element in its final state and cut
+   the decorative animation instead of running it faster. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

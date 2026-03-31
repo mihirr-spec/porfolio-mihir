@@ -403,6 +403,10 @@ function NavBar() {
     const startY = window.scrollY;
     const dist   = targetY - startY;
     if (Math.abs(dist) < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.scrollTo(0, targetY);
+      return;
+    }
     let startTime: number | null = null;
     const ease = (t: number) =>
       t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
