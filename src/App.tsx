@@ -652,7 +652,7 @@ const STACK_ICON_MAP: Record<string, StackIconEntry> = {
 function TechTile({ name, icon, invert = false }: TechItem) {
   return (
     <div className="flex items-center gap-4 px-6 shrink-0" style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '18px', height: '72px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-      {icon ? <img src={icon} alt={name} loading="lazy" style={{ width: '34px', height: '34px', objectFit: 'contain', filter: invert ? 'brightness(0)' : 'none' }} /> : <div style={{ width: '34px', height: '34px' }} />}
+      {icon ? <img src={icon} alt={name} width={34} height={34} loading="lazy" decoding="async" style={{ width: '34px', height: '34px', objectFit: 'contain', filter: invert ? 'brightness(0)' : 'none' }} /> : <div style={{ width: '34px', height: '34px' }} />}
       <span className="font-semibold uppercase tracking-[0.15em] whitespace-nowrap" style={{ color: '#1a1a2e', fontSize: '0.82rem' }}>{name}</span>
     </div>
   );
