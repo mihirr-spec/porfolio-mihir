@@ -255,22 +255,6 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
             </a>
           </div>
 
-          {/* Desktop bottom bar */}
-          <M.div
-            style={{ y: bottomY }}
-            className="flex justify-between items-end px-6 md:px-10 pb-7 sm:pb-8 md:pb-10 relative z-20"
-          >
-            <FadeIn
-              as="p"
-              delay={0.3}
-              y={18}
-              className="hero-subtitle font-light uppercase tracking-wide leading-snug max-w-[155px] sm:max-w-[210px] md:max-w-[255px]"
-              style={{ color: 'var(--text)', fontSize: 'clamp(0.7rem, 1.35vw, 1.4rem)' }}
-            >
-              a full-stack developer building ai-powered platforms and meaningful digital experiences
-            </FadeIn>
-
-          </M.div>
         </div>
       </section>
     );
