@@ -777,7 +777,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       tag: 'Web Tool / Academic',
       name: 'SRS Builder',
       blurb: 'A client-side React tool that converts GitHub README content into IEEE 830-compliant LaTeX SRS documents. Fully free, no backend, no API calls. Gained 400+ organic visitors and actively used by classmates for academic PBL submissions.',
-      href: 'https://github.com/mihirr-spec',
+      href: 'https://github.com/mihirr-spec/SRS-builder',
       stack: ['React','TypeScript','Vite','Vercel'],
       live: 'https://srs-builder.vercel.app/',
       img1: '/images/SRS1.jpeg',
