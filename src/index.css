@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme tokens ──────────────────────────────────────── */
+    :root {
+      --bg: #0C0C0C;
+      --surface: #0D0D14;
+      --text: #D7E2EA;
+      --ta05: rgba(215,226,234,0.05);
+      --ta06: rgba(215,226,234,0.06);
+      --ta07: rgba(215,226,234,0.07);
+      --ta09: rgba(215,226,234,0.09);
+      --ta10: rgba(215,226,234,0.1);
+      --ta12: rgba(215,226,234,0.12);
+      --ta16: rgba(215,226,234,0.16);
+      --ta20: rgba(215,226,234,0.2);
+      --ta30: rgba(215,226,234,0.3);
+      --ta40: rgba(215,226,234,0.4);
+      --ta45: rgba(215,226,234,0.45);
+      --ta50: rgba(215,226,234,0.5);
+      --ta60: rgba(215,226,234,0.6);
+      --hero-grad: linear-gradient(180deg, #646973 0%, #BBCCD7 100%);
+      --nav-bg: rgba(12,12,12,0.78);
+      --nav-border: rgba(215,226,234,0.07);
+      --scroll-track: #0C0C0C;
+      --scroll-thumb: #222;
+      --jt-shadow: #0C0C0C;
+      --services-bg: #FFFFFF;
+      --services-text: #0C0C0C;
+      --services-border: rgba(12,12,12,0.13);
+      --card-empty: linear-gradient(135deg, #0f0f18 0%, #15151f 100%);
+      --card-dots: rgba(215,226,234,0.06);
+    }
+    .light {
+      --bg: #F0F2F7;
+      --surface: #FFFFFF;
+      --text: #1a1a2e;
+      --ta05: rgba(26,26,46,0.05);
+      --ta06: rgba(26,26,46,0.07);
+      --ta07: rgba(26,26,46,0.09);
+      --ta09: rgba(26,26,46,0.10);
+      --ta10: rgba(26,26,46,0.12);
+      --ta12: rgba(26,26,46,0.14);
+      --ta16: rgba(26,26,46,0.18);
+      --ta20: rgba(26,26,46,0.22);
+      --ta30: rgba(26,26,46,0.35);
+      --ta40: rgba(26,26,46,0.55);
+      --ta45: rgba(26,26,46,0.60);
+      --ta50: rgba(26,26,46,0.65);
+      --ta60: rgba(26,26,46,0.75);
+      --hero-grad: linear-gradient(180deg, #2e3545 0%, #1a2030 100%);
+      --nav-bg: rgba(240,242,247,0.88);
+      --nav-border: rgba(26,26,46,0.08);
+      --scroll-track: #F0F2F7;
+      --scroll-thumb: #bbb;
+      --jt-shadow: #F0F2F7;
+      --services-bg: #E8EAF2;
+      --services-text: #0C0C0C;
+      --services-border: rgba(12,12,12,0.10);
+      --card-empty: linear-gradient(135deg, #e4e7f0 0%, #d8dce8 100%);
+      --card-dots: rgba(26,26,46,0.06);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body, #root { background: var(--bg); margin: 0; padding: 0; transition: background 0.4s ease, color 0.4s ease; }
+    body { font-family: 'Kanit', sans-serif; -webkit-font-smoothing: antialiased; }
+    /* Smooth transitions for structural theme-aware elements */
+    section, header, footer, nav {
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+    .jt-tag, .jt-date-pill {
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+    .jt-card {
+      transition: opacity 0.55s ease, transform 0.55s ease, border-color 0.4s ease, background-color 0.4s ease;
+    }
+    .hero-heading {
+      background: var(--hero-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+    .contact-btn {
+      background: linear-gradient(123deg, #18011F 7%, #B600A8 37%, #7621B0 72%, #BE4C00 100%);
+      box-shadow: 0px 4px 4px rgba(181, 1, 167, 0.25), 4px 4px 12px #7721B1 inset;
+      outline: 2px solid #FFFFFF;
+      outline-offset: -3px;
+    }
+    /* Scroll anchors clear the fixed nav */
+    [id] { scroll-margin-top: 80px; }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--scroll-track); }
+    ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
+
+/* ── Journey / Timeline ─────────────────────────────── */
+  .jt-timeline { position: relative; padding: 20px 0; }
+  .jt-line {
+    position: absolute; left: 50%; top: 0; bottom: 0; width: 2px;
+    background: var(--ta10);
+    transform: translateX(-50%); z-index: 0;
+  }
+  .jt-prog {
+    position: absolute; left: 50%; top: 0; width: 2px; height: 0;
+    background: linear-gradient(to bottom, transparent 0%, var(--ta60) 8%, var(--text) 100%);
+    transform: translateX(-50%); z-index: 1; pointer-events: none; will-change: height;
+  }
+  .jt-prog.is-active::after {
+    content: ''; position: absolute; left: 50%; bottom: -5px;
+    transform: translateX(-50%);
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--text);
+    box-shadow: 0 0 0 4px var(--jt-shadow), 0 0 10px var(--ta30);
+  }
+  .jt-item {
+    position: relative; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 72px; margin-bottom: 60px;
+  }
+  .jt-item:last-child { margin-bottom: 0; }
+  .jt-dot {
+    position: absolute; left: 50%; top: 28px;
+    width: 14px; height: 14px;
+    background: var(--ta12); border-radius: 50%;
+    transform: translateX(-50%); z-index: 2;
+    box-shadow: 0 0 0 4px var(--jt-shadow);
+    transition: background 0.35s ease, transform 0.35s ease;
+  }
+  .jt-dot.is-active {
+    background: var(--text);
+    transform: translateX(-50%) scale(1.25);
+    box-shadow: 0 0 0 4px var(--jt-shadow), 0 0 10px var(--ta30);
+  }
+  .jt-date-pill {
+    position: absolute; top: 22px; z-index: 1;
+    background: var(--ta07);
+    color: var(--ta50);
+    border: 1px solid var(--ta12);
+    font-size: 13px; font-weight: 500; font-family: 'Kanit',sans-serif;
+    letter-spacing: 0.04em; padding: 6px 14px; border-radius: 8px; white-space: nowrap;
+  }
+  .jt-item-left .jt-card  { grid-column: 1; }
+  .jt-item-left .jt-date-pill { left: calc(50% + 22px); }
+  .jt-item-right .jt-card { grid-column: 2; }
+  .jt-item-right .jt-date-pill { right: calc(50% + 22px); }
+  .jt-card {
+    background: var(--surface); border: 1.5px solid var(--ta09);
+    border-radius: 18px; padding: 26px 30px;
+    opacity: 0; transform: translateY(20px);
+  }
+  .jt-card.visible { opacity: 1; transform: translateY(0); }
+  .jt-card:hover { border-color: var(--ta20); }
+  .jt-hi-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .jt-hi-icon svg { width: 18px; height: 18px; stroke-width: 2; }
+  .jt-ic-blue   { background: rgba(59,130,246,0.12);  color: #60a5fa; }
+  .jt-ic-green  { background: rgba(34,197,94,0.12);   color: #4ade80; }
+  .jt-ic-purple { background: rgba(168,85,247,0.12);  color: #c084fc; }
+  .jt-ic-amber  { background: rgba(245,158,11,0.12);  color: #fbbf24; }
+  .jt-ic-rose   { background: rgba(244,63,94,0.12);   color: #fb7185; }
+  .jt-ic-cyan   { background: rgba(6,182,212,0.12);   color: #22d3ee; }
+  .jt-tag {
+    display: inline-block; font-size: 0.62rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 999px;
+    background: var(--ta06); color: var(--ta45);
+    border: 1px solid var(--ta10); margin: 3px 3px 0 0;
+  }
+  .jt-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-top: 22px; padding: 9px 16px 9px 13px;
+    background: var(--ta07); color: var(--text);
+    border: 1px solid var(--ta16);
+    border-radius: 10px; font-size: 13.5px; font-weight: 500;
+    font-family: 'Kanit',sans-serif; text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, gap 0.2s;
+  }
+  .jt-btn:hover { background: var(--ta12); border-color: var(--ta30); gap: 14px; }
+  .jt-btn svg.arrow { width: 13px; height: 13px; transition: transform 0.2s; }
+  .jt-btn:hover svg.arrow { transform: translateX(2px); }
+  @media (max-width: 768px) {
+    .jt-line, .jt-prog { left: 12px; transform: none; }
+    .jt-dot { left: 12px; transform: translateX(-50%); }
+    .jt-item { grid-template-columns: 1fr; gap: 0; padding-left: 40px; padding-top: 42px; margin-bottom: 28px; }
+    .jt-item-left .jt-card, .jt-item-right .jt-card { grid-column: 1; }
+    .jt-date-pill { position: static; display: inline-block; margin-bottom: 14px; }
+    .jt-item-left .jt-date-pill, .jt-item-right .jt-date-pill { left: auto; right: auto; }
+    .jt-card { padding: 20px 22px; }
+  }
