@@ -224,7 +224,36 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
             </FadeIn>
           </M.div>
 
-          {/* Bottom bar */}
+          {/* Mobile-only: bio text + resume button directly under heading */}
+          <div className="hero-mobile-bio">
+            <p className="font-medium text-center leading-relaxed" style={{ color: 'var(--text)', fontSize: '0.95rem', maxWidth: '300px' }}>
+              A computer science student at Manipal University Jaipur, I focus on building AI-powered platforms, full-stack web applications, and developer-friendly experiences.
+            </p>
+            <a
+              href="/MihirSanghvi.pdf"
+              download
+              className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-8 py-3 text-xs"
+            >
+              <span className="btn-default inline-flex items-center gap-3">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download Resume
+              </span>
+              <span className="btn-hover font-medium uppercase tracking-widest text-xs">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download Resume
+              </span>
+            </a>
+          </div>
+
+          {/* Desktop bottom bar */}
           <M.div
             style={{ y: bottomY }}
             className="flex justify-between items-end px-6 md:px-10 pb-7 sm:pb-8 md:pb-10 relative z-20"
@@ -319,6 +348,29 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     );
   }
 
+  /* Mobile-only: compact grid tile — icon + name, always coloured */
+  function TechTileMobile({ name, icon, invert = false }) {
+    return (
+      <div style={{
+        background: '#FFFFFF',
+        border: '1px solid rgba(0,0,0,0.07)',
+        borderRadius: '14px',
+        padding: '14px 6px 12px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '8px',
+        boxShadow: '0 1px 5px rgba(0,0,0,0.06)',
+      }}>
+        {icon
+          ? <img src={icon} alt={name} loading="lazy" style={{ width: '30px', height: '30px', objectFit: 'contain', filter: invert ? 'brightness(0)' : 'none' }} />
+          : <div style={{ width: '30px', height: '30px' }} />
+        }
+        <span style={{ fontFamily: 'Kanit, sans-serif', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1a1a2e', textAlign: 'center', lineHeight: 1.2 }}>{name}</span>
+      </div>
+    );
+  }
+
   function MarqueeSection() {
     const sectionRef = useRef(null);
     const [offset, setOffset] = useState(0);
@@ -336,15 +388,27 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     }, []);
     const triple = (arr) => [...arr, ...arr, ...arr];
     const dirs = [1, -1, 1];
+    const allTech = useMemo(() => TECH_ROWS.flat(), []);
     return (
       <section ref={sectionRef} className="pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden" style={{ background: 'var(--bg)' }}>
-        <div className="flex flex-col gap-3">
+
+        {/* Desktop: scroll-driven marquee rows */}
+        <div className="marquee-desktop flex flex-col gap-3">
           {TECH_ROWS.map((row, ri) => (
             <div key={ri} className="flex gap-3" style={{ transform: 'translateX(' + String(dirs[ri] * (offset - 200)) + 'px)', willChange: 'transform' }}>
               {triple(row).map((tech, i) => <TechTile key={'r' + ri + '-' + i} {...tech} />)}
             </div>
           ))}
         </div>
+
+        {/* Mobile: static grid, all logos always visible + coloured */}
+        <div className="marquee-mobile-grid">
+          <p className="font-black uppercase tracking-[0.18em] text-center mb-5" style={{ color: 'var(--text)', opacity: 0.35, fontSize: '0.65rem' }}>Tech Stack</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', padding: '0 16px 8px' }}>
+            {allTech.map((tech, i) => <TechTileMobile key={i} {...tech} />)}
+          </div>
+        </div>
+
       </section>
     );
   }
@@ -352,7 +416,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
   /* ─── About ──────────────────────────────────────────────── */
   function AboutSection() {
     return (
-      <section id="about" className="min-h-screen relative px-5 sm:px-8 md:px-10 py-20 flex flex-col items-center justify-center overflow-hidden" style={{ background: 'var(--bg)' }}>
+      <section id="about" className="about-desktop min-h-screen relative px-5 sm:px-8 md:px-10 py-20 flex flex-col items-center justify-center overflow-hidden" style={{ background: 'var(--bg)' }}>
 
         <div className="flex flex-col items-center gap-10 sm:gap-14 md:gap-16 relative z-10">
           <FadeIn as="h2" delay={0} y={40} className="hero-heading font-black uppercase leading-none tracking-tight text-center" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>

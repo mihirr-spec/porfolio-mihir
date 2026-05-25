@@ -68,6 +68,10 @@
     html, body, #root { background: var(--bg); margin: 0; padding: 0; transition: background 0.4s ease, color 0.4s ease; }
     body { font-family: 'Kanit', sans-serif; -webkit-font-smoothing: antialiased; }
 
+    /* Mobile-only elements hidden on desktop */
+    .hero-mobile-bio { display: none; }
+    .marquee-mobile-grid { display: none; }
+
     /* ── Grid texture (light: dark lines, dark: white lines) ── */
     section, header {
       background-image:
@@ -273,8 +277,12 @@
   .mobile-menu a:active { opacity: 1; }
 
   /* ── Hero ── */
-  /* Centre heading vertically */
-  .hero-content { justify-content: center !important; }
+  /* Centre the whole heading+bio block */
+  .hero-content {
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0;
+  }
   /* Two-line centred heading */
   .hero-h1 {
     white-space: normal !important;
@@ -283,8 +291,25 @@
     line-height: 0.93 !important;
   }
   .hero-line1, .hero-line2 { display: block !important; }
-  /* Hide the subtitle blurb */
+  /* Hide the desktop subtitle */
   .hero-subtitle { display: none !important; }
+
+  /* Mobile bio block: bio text + resume button below heading */
+  .hero-mobile-bio {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    margin-top: 28px;
+    padding: 0 24px;
+  }
+
+  /* Hide desktop-only About section on mobile */
+  .about-desktop { display: none !important; }
+
+  /* Hide desktop scrolling marquee, show static grid */
+  .marquee-desktop { display: none !important; }
+  .marquee-mobile-grid { display: block !important; }
 
   /* ── About ── */
   /* resume-btn: tap on mobile — disable the translateY lift */
