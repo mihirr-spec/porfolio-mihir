@@ -419,8 +419,8 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       <section id="about" className="about-desktop min-h-screen relative px-5 sm:px-8 md:px-10 py-20 flex flex-col items-center justify-center overflow-hidden" style={{ background: 'var(--bg)' }}>
 
         <div className="flex flex-col items-center gap-10 sm:gap-14 md:gap-16 relative z-10">
-          <FadeIn as="h2" delay={0} y={40} className="hero-heading font-black uppercase leading-none tracking-tight text-center" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>
-            About me
+          <FadeIn as="h2" delay={0} y={40} className="hero-heading font-black leading-none tracking-tight text-center" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>
+            About Me
           </FadeIn>
           <AnimatedText
             text="A computer science student at Manipal University Jaipur, I focus on building AI-powered platforms, full-stack web applications, and developer-friendly experiences."
@@ -676,7 +676,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         style={{ background: 'var(--bg)' }}
       >
         <FadeIn as="h2" y={40}
-          className="hero-heading font-black uppercase leading-none tracking-tight text-center mb-16 sm:mb-20 md:mb-24"
+          className="hero-heading font-black leading-none tracking-tight text-center mb-16 sm:mb-20 md:mb-24"
           style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}
         >
           Journey So Far
@@ -714,7 +714,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
   function ServicesSection() {
     return (
       <section id="skills" className="rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] px-5 sm:px-8 md:px-10 py-20 sm:py-24 md:py-32 relative z-0" style={{ background: 'var(--services-bg)' }}>
-        <FadeIn as="h2" y={40} className="font-black uppercase text-center mb-16 sm:mb-20 md:mb-28" style={{ color: 'var(--services-text)', fontSize: 'clamp(3rem, 12vw, 160px)', lineHeight: 1 }}>
+        <FadeIn as="h2" y={40} className="font-black text-center mb-16 sm:mb-20 md:mb-28" style={{ color: 'var(--services-text)', fontSize: 'clamp(3rem, 12vw, 160px)', lineHeight: 1 }}>
           Services
         </FadeIn>
         <div className="max-w-5xl mx-auto">
@@ -943,7 +943,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         className="rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 relative z-10 px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 md:pt-32 pb-40"
         style={{ background: 'var(--bg)' }}
       >
-        <FadeIn as="h2" y={40} className="hero-heading font-black uppercase leading-none tracking-tight text-center mb-14 sm:mb-20 md:mb-24" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>
+        <FadeIn as="h2" y={40} className="hero-heading font-black leading-none tracking-tight text-center mb-14 sm:mb-20 md:mb-24" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>
           Projects
         </FadeIn>
         <div className="max-w-7xl mx-auto">
@@ -975,10 +975,10 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
 
             <FadeIn y={70} duration={0.95}>
               <div
-                className="hero-heading font-black uppercase leading-[0.87] tracking-tight select-none"
+                className="hero-heading font-black leading-[0.87] tracking-tight select-none"
                 style={{ fontSize: 'clamp(5.5rem, 20vw, 250px)' }}
               >
-                Let&apos;s<br />talk
+                Let&apos;s<br />Talk
               </div>
             </FadeIn>
 
