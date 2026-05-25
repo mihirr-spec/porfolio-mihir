@@ -99,7 +99,9 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
 
     useEffect(() => {
       const saved = localStorage.getItem('theme');
-      if (saved === 'dark') { document.documentElement.classList.add('dark'); setIsDark(true); }
+      const isMobile = window.innerWidth <= 768;
+      // On mobile always open in light mode; on desktop restore saved dark preference
+      if (saved === 'dark' && !isMobile) { document.documentElement.classList.add('dark'); setIsDark(true); }
       const fn = () => setScrolled(window.scrollY > 48);
       window.addEventListener('scroll', fn, { passive: true });
       return () => window.removeEventListener('scroll', fn);

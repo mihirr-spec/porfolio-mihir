@@ -73,14 +73,14 @@
     .marquee-mobile-grid { display: none; }
 
     /* ── Grid texture (light: dark lines, dark: white lines) ── */
-    section, header {
+    section, header, footer {
       background-image:
         linear-gradient(rgba(0,0,0,0.042) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0,0,0,0.042) 1px, transparent 1px) !important;
       background-size: 28px 28px !important;
       background-color: var(--bg) !important;
     }
-    html.dark section, html.dark header {
+    html.dark section, html.dark header, html.dark footer {
       background-image:
         linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px) !important;
