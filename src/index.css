@@ -88,6 +88,39 @@
       outline: 2px solid #FFFFFF;
       outline-offset: -3px;
     }
+    /* Resume download button */
+    .resume-btn {
+      position: relative;
+      border: 1.5px solid var(--ta30);
+      color: var(--text);
+      background: transparent;
+      overflow: hidden;
+      transition: border-color 0.35s, transform 0.2s;
+    }
+    .resume-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+    }
+    .resume-btn:hover::before { transform: translateX(0); }
+    .resume-btn:hover { border-color: #ffffff; transform: translateY(-2px); }
+    /* default layer: light text, hidden when hovered */
+    .resume-btn .btn-default { position: relative; z-index: 1; transition: opacity 0s 0.18s; }
+    .resume-btn:hover .btn-default { opacity: 0; transition: opacity 0s; }
+    /* dark layer: black text, revealed on hover synced with fill */
+    .resume-btn .btn-hover {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      color: #111111; z-index: 2;
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .resume-btn:hover .btn-hover { clip-path: inset(0 0% 0 0); }
+
     /* Scroll anchors clear the fixed nav */
     [id] { scroll-margin-top: 80px; }
     /* Scrollbar */
