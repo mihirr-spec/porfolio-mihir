@@ -357,86 +357,137 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
   ];
 
   function MobileTechOrb() {
-    // 1 center + 5 inner ring + 12 outer ring = 18 nodes
-    const nodeData = useMemo(() => MOBILE_TECH_NODES.map((tech, i) => {
-      let x, y;
-      if (i === 0) { x = 50; y = 50; }
-      else if (i <= 5) {
-        const a = ((i - 1) / 5) * 2 * Math.PI - Math.PI / 2;
-        x = 50 + 23 * Math.cos(a); y = 50 + 23 * Math.sin(a);
-      } else {
-        const a = ((i - 6) / 12) * 2 * Math.PI - Math.PI / 2;
-        x = 50 + 41 * Math.cos(a); y = 50 + 41 * Math.sin(a);
-      }
-      return { ...tech, x, y };
-    }), []);
+    const canvasRef = useRef(null);
+    const stateRef = useRef({ ry: 0, images: {}, frame: null });
 
-    // Connect nodes closer than threshold (in 0–100 coordinate units)
-    const conns = useMemo(() => {
-      const lines = [];
-      nodeData.forEach((a, i) => nodeData.forEach((b, j) => {
+    // Fibonacci sphere — evenly distributes N points on sphere surface
+    const basePts = useMemo(() => {
+      const n = MOBILE_TECH_NODES.length;
+      const golden = Math.PI * (3 - Math.sqrt(5));
+      return MOBILE_TECH_NODES.map((tech, i) => {
+        const y  = 1 - (i / (n - 1)) * 2;
+        const r  = Math.sqrt(1 - y * y);
+        const th = golden * i;
+        return { ...tech, x0: Math.cos(th) * r, y0: y, z0: Math.sin(th) * r };
+      });
+    }, []);
+
+    // Precompute which pairs are "close" on the sphere (for edge lines)
+    const connPairs = useMemo(() => {
+      const pairs = [];
+      basePts.forEach((a, i) => basePts.forEach((b, j) => {
         if (j <= i) return;
-        if (Math.hypot(a.x - b.x, a.y - b.y) < 27) lines.push([i, j]);
+        if (Math.hypot(a.x0 - b.x0, a.y0 - b.y0, a.z0 - b.z0) < 0.68) pairs.push([i, j]);
       }));
-      return lines;
-    }, [nodeData]);
+      return pairs;
+    }, [basePts]);
+
+    // Pre-load all icons
+    useEffect(() => {
+      basePts.forEach(node => {
+        if (!node.icon) return;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = node.icon;
+        img.onload = () => { stateRef.current.images[node.name] = img; };
+      });
+    }, [basePts]);
+
+    // Canvas draw loop
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const L = 320;
+      canvas.width  = L * dpr;
+      canvas.height = L * dpr;
+      ctx.scale(dpr, dpr);
+      const cx = L / 2, cy = L / 2;
+      const R  = L * 0.36;        // sphere radius
+      const RX = 0.22;            // fixed X tilt so top is visible
+      const cosX = Math.cos(RX), sinX = Math.sin(RX);
+      let lastT = 0;
+      const FPS_INTERVAL = 1000 / 30; // 30 fps is smooth enough
+
+      const project = (ry) => {
+        const cosY = Math.cos(ry), sinY = Math.sin(ry);
+        return basePts.map((node, idx) => {
+          const x1 =  node.x0 * cosY + node.z0 * sinY;
+          const z1 = -node.x0 * sinY + node.z0 * cosY;
+          const y2 =  node.y0 * cosX - z1 * sinX;
+          const z2 =  node.y0 * sinX + z1 * cosX;
+          const scale = (z2 + 1.5) / 2.5;          // 0.2 → 1.0
+          return { ...node, idx, sx: cx + x1 * R, sy: cy + y2 * R, scale, z: z2 };
+        });
+      };
+
+      const draw = (ts) => {
+        stateRef.current.frame = requestAnimationFrame(draw);
+        if (ts - lastT < FPS_INTERVAL) return;
+        lastT = ts;
+
+        stateRef.current.ry += 0.012;
+        const all    = project(stateRef.current.ry);
+        const byIdx  = all;                              // original order for edges
+        const sorted = [...all].sort((a, b) => a.z - b.z); // back→front for drawing
+
+        ctx.clearRect(0, 0, L, L);
+
+        // ── Edge lines ──────────────────────────────────────
+        connPairs.forEach(([i, j]) => {
+          const a = byIdx[i], b = byIdx[j];
+          const avgS = (a.scale + b.scale) / 2;
+          const alpha = Math.max(0.015, avgS * 0.20);
+          ctx.beginPath();
+          ctx.moveTo(a.sx, a.sy);
+          ctx.lineTo(b.sx, b.sy);
+          ctx.strokeStyle = `rgba(0,0,0,${alpha.toFixed(3)})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        });
+
+        // ── Nodes (back → front so front always on top) ─────
+        sorted.forEach(node => {
+          const r     = 11 + node.scale * 14;          // 11 → 25 px
+          const alpha = Math.max(0.15, node.scale * 0.88 + 0.12);
+
+          ctx.save();
+          ctx.globalAlpha = alpha;
+
+          // Drop shadow
+          ctx.shadowBlur  = node.scale * 14;
+          ctx.shadowColor = 'rgba(0,0,0,0.18)';
+
+          // White circle
+          ctx.beginPath();
+          ctx.arc(node.sx, node.sy, r, 0, Math.PI * 2);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+
+          // Icon
+          const img = stateRef.current.images[node.name];
+          if (img) {
+            const ir = r * 0.60;
+            ctx.drawImage(img, node.sx - ir, node.sy - ir, ir * 2, ir * 2);
+          }
+
+          ctx.restore();
+        });
+      };
+
+      stateRef.current.frame = requestAnimationFrame(draw);
+      return () => cancelAnimationFrame(stateRef.current.frame);
+    }, [basePts, connPairs]);
 
     return (
-      <div style={{ position: 'relative', width: '100%', paddingBottom: '100%', maxWidth: '340px', margin: '0 auto' }}>
-        {/* Faint orbital ring */}
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          width: '86%', height: '86%',
-          transform: 'translate(-50%, -50%)',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 68%)',
-          border: '1px dashed rgba(0,0,0,0.07)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* SVG connection lines */}
-        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-          <defs>
-            <radialGradient id="orbLineGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(0,0,0,0.22)" />
-              <stop offset="100%" stopColor="rgba(0,0,0,0.04)" />
-            </radialGradient>
-          </defs>
-          {conns.map(([i, j], k) => (
-            <line key={k}
-              x1={nodeData[i].x} y1={nodeData[i].y}
-              x2={nodeData[j].x} y2={nodeData[j].y}
-              stroke="url(#orbLineGrad)" strokeWidth="0.4"
-            />
-          ))}
-        </svg>
-
-        {/* Nodes */}
-        {nodeData.map((node, i) => {
-          const isCenter = i === 0;
-          const sz = isCenter ? 56 : 44;
-          const iconSz = isCenter ? 28 : 22;
-          return (
-            <div key={node.name} className="tech-orb-node" style={{
-              position: 'absolute',
-              left: `${node.x}%`, top: `${node.y}%`,
-              width: `${sz}px`, height: `${sz}px`,
-              borderRadius: '50%',
-              background: '#FFFFFF',
-              border: isCenter ? '1.5px solid rgba(0,0,0,0.13)' : '1px solid rgba(0,0,0,0.08)',
-              boxShadow: isCenter ? '0 4px 22px rgba(0,0,0,0.13)' : '0 2px 10px rgba(0,0,0,0.07)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              animationDelay: `${(i * 0.28) % 2.8}s`,
-              zIndex: isCenter ? 3 : 1,
-            }}>
-              {node.icon && <img src={node.icon} alt={node.name} loading="lazy"
-                style={{ width: `${iconSz}px`, height: `${iconSz}px`, objectFit: 'contain',
-                  filter: node.invert ? 'brightness(0)' : 'none' }} />}
-            </div>
-          );
-        })}
-      </div>
+      <canvas ref={canvasRef}
+        style={{ width: '100%', height: 'auto', display: 'block', maxWidth: '320px', margin: '0 auto' }}
+      />
     );
   }
 
