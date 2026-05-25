@@ -438,12 +438,12 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         connPairs.forEach(([i, j]) => {
           const a = byIdx[i], b = byIdx[j];
           const avgS = (a.scale + b.scale) / 2;
-          const alpha = Math.max(0.015, avgS * 0.20);
+          const alpha = Math.max(0.12, avgS * 0.55);
           ctx.beginPath();
           ctx.moveTo(a.sx, a.sy);
           ctx.lineTo(b.sx, b.sy);
           ctx.strokeStyle = `rgba(0,0,0,${alpha.toFixed(3)})`;
-          ctx.lineWidth = 0.8;
+          ctx.lineWidth = 1.4;
           ctx.stroke();
         });
 
