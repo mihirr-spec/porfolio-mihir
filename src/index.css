@@ -316,24 +316,22 @@
   /* resume-btn: tap on mobile — disable the translateY lift */
   .resume-btn:active { transform: none; }
 
-  /* ── Project cards: remove sticky stacking on mobile ── */
+  /* ── Project cards: sticky stacking on mobile ── */
   .project-stack-card {
-    position: relative !important;
-    top: auto !important;
-    height: auto !important;
-    margin-bottom: 18px;
+    position: sticky !important;
+    height: 82vh !important;   /* override the JS-calculated desktop height */
   }
-  /* Let inner divs shrink to content height */
+  /* Restore full height on inner wrappers */
   .project-stack-card > div,
-  .project-stack-card > div > div,
-  .project-stack-card > div > div > div {
-    height: auto !important;
+  .project-stack-card > div > div {
+    height: 100% !important;
   }
   /* Image grid: single tall image only */
   .project-image-grid {
     grid-template-columns: 1fr !important;
-    grid-template-rows: 200px !important;
-    height: 200px !important;
+    grid-template-rows: 1fr !important;
+    height: auto !important;
+    min-height: 160px;
   }
   .project-image-grid > div:nth-child(2) { display: none !important; }
   .project-image-grid > div:nth-child(3) { display: none !important; }
