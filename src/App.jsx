@@ -344,7 +344,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
             About me
           </FadeIn>
           <AnimatedText
-            text="A computer science student at manipal university jaipur, i focus on building ai-powered platforms, full-stack web applications, and developer-friendly experiences."
+            text="A computer science student at Manipal University Jaipur, I focus on building AI-powered platforms, full-stack web applications, and developer-friendly experiences."
             className="font-medium text-center leading-relaxed"
             style={{ color: 'var(--text)', maxWidth: '560px', fontSize: 'clamp(1rem, 2vw, 1.35rem)' }}
           />
@@ -385,15 +385,15 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
   const JT_DATA = [
     {
       side: 'left',
-      date: 'Sept, 2025 — Present',
+      date: 'Sept 2025 - Present',
       title: 'Technical Editorial Co-Lead',
       subtitle: 'GDG · Google Developer Group',
-      desc: 'Co-leading editorial direction for a developer community publication — mentoring writers, shipping content on cloud and emerging dev tooling, and building workflows that keep quality consistent.',
+      desc: 'Co-leading editorial direction for a developer community publication, mentoring writers, shipping content on cloud and emerging dev tooling, and building workflows that keep quality consistent.',
       highlights: [
         { col: 'jt-ic-blue',   label: 'Team Leadership',    detail: 'Mentored 4 junior writers and oversaw editorial quality', icon: 'users' },
-        { col: 'jt-ic-purple', label: 'Shipped Volume',     detail: '5+ published articles over 8 months — GCP, Agentic RAG, Open Source', icon: 'file' },
+        { col: 'jt-ic-purple', label: 'Shipped Volume',     detail: '5+ published articles over 8 months: GCP, Agentic RAG, Open Source', icon: 'file' },
         { col: 'jt-ic-amber',  label: 'Reach & Engagement', detail: '400+ presentations and 180+ views across the catalog', icon: 'trending' },
-        { col: 'jt-ic-green',  label: 'Top Performer',      detail: '40% read-through rate on top article — beat Medium benchmark', icon: 'award' },
+        { col: 'jt-ic-green',  label: 'Top Performer',      detail: '40% read-through rate on top article, beating the Medium benchmark', icon: 'award' },
       ],
       tags: ['GCP', 'Agentic RAG', 'Open Source', 'Cloud'],
       btnLabel: 'Read on Medium',
@@ -401,14 +401,14 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     },
     {
       side: 'right',
-      date: 'Nov — Dec, 2025',
+      date: 'Nov - Dec 2025',
       title: 'Technical Writer',
       subtitle: 'The Digital Dose',
-      desc: 'Translating complex platforms into approachable reads for a Medium audience — AI, Web3, and emerging tech that gets read, clapped, and shared.',
+      desc: 'Translating complex platforms into approachable reads for a Medium audience: AI, Web3, and emerging tech that gets read, clapped, and shared.',
       highlights: [
-        { col: 'jt-ic-rose',   label: 'Articles Shipped',  detail: '6 technical articles on AI, Web3 & emerging tech in under 8 weeks', icon: 'pen' },
+        { col: 'jt-ic-rose',   label: 'Articles Shipped',  detail: '6 technical articles on AI, Web3 and emerging tech in under 8 weeks', icon: 'pen' },
         { col: 'jt-ic-green',  label: 'Engagement',        detail: '400+ claps and ~600 views accumulated across pieces', icon: 'thumb' },
-        { col: 'jt-ic-amber',  label: 'Top Article',       detail: 'Web3 piece hit 104 claps — top of the publication run', icon: 'star' },
+        { col: 'jt-ic-amber',  label: 'Top Article',       detail: 'Web3 piece hit 104 claps, topping the publication run', icon: 'star' },
         { col: 'jt-ic-blue',   label: 'Explained Simply',  detail: 'Made Satsuma, Sarvam & GPT-5.1 accessible to general readers', icon: 'layers' },
       ],
       tags: ['AI', 'Web3', 'Satsuma', 'Sarvam', 'GPT-5.1'],
@@ -625,11 +625,11 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
 
   /* ─── Services ───────────────────────────────────────────── */
   const SERVICES = [
-    { n: '01', name: 'Full-Stack Development', desc: 'End-to-end web applications built with react, typescript, fastapi, and modern databases — from clean component architecture to robust backend logic and auth.' },
-    { n: '02', name: 'AI / ML Engineering', desc: 'Designing intelligent systems with pytorch, xgboost, and llm pipelines — including rag platforms, classification models, and multi-agent workflows that ship real value.' },
-    { n: '03', name: 'Frontend Development', desc: 'Responsive, accessible interfaces built with react, vite, and tailwind — focused on performance, smooth interactions, and a polished user experience.' },
-    { n: '04', name: 'Backend & APIs', desc: 'Scalable apis and data layers using fastapi, supabase, postgres, and chromadb — including role-based auth, vector search, and clean integration patterns.' },
-    { n: '05', name: 'Technical Writing', desc: 'Clear, structured technical articles on ai, web3, and modern dev tooling — translating complex platforms into reader-friendly explanations for engineers and creators.' }
+    { n: '01', name: 'Full-Stack Development', desc: 'End-to-end web applications built with React, TypeScript, FastAPI, and modern databases. From clean component architecture to robust backend logic and auth.' },
+    { n: '02', name: 'AI / ML Engineering', desc: 'Designing intelligent systems with PyTorch, XGBoost, and LLM pipelines, including RAG platforms, classification models, and multi-agent workflows that ship real value.' },
+    { n: '03', name: 'Frontend Development', desc: 'Responsive, accessible interfaces built with React, Vite, and Tailwind, focused on performance, smooth interactions, and a polished user experience.' },
+    { n: '04', name: 'Backend & APIs', desc: 'Scalable APIs and data layers using FastAPI, Supabase, Postgres, and ChromaDB, including role-based auth, vector search, and clean integration patterns.' },
+    { n: '05', name: 'Technical Writing', desc: 'Clear, structured technical articles on AI, Web3, and modern dev tooling, translating complex platforms into reader-friendly explanations for engineers and creators.' }
   ];
 
   function ServicesSection() {
@@ -688,14 +688,14 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       href: 'https://github.com/mihirr-spec',
       stack: ['Python','PyTorch','XGBoost','FastAPI','React','Scikit-learn'],
       img1: '/images/SEHAI1.jpeg',
-      img2: '/images/Sehai2.png',
-      img3: '/images/SEHAI3.png',
+      img2: '/images/SEHAI3.png',
+      img3: '/images/Sehai2.png',
     },
     {
       n: '03',
       tag: 'Web Tool / Academic',
       name: 'SRS Builder',
-      blurb: 'A client-side React tool that converts GitHub README content into IEEE 830-compliant LaTeX SRS documents — fully free, no backend, no API calls. Gained 400+ organic visitors and actively used by classmates for academic PBL submissions.',
+      blurb: 'A client-side React tool that converts GitHub README content into IEEE 830-compliant LaTeX SRS documents. Fully free, no backend, no API calls. Gained 400+ organic visitors and actively used by classmates for academic PBL submissions.',
       href: 'https://github.com/mihirr-spec',
       stack: ['React','TypeScript','Vite','Vercel'],
       live: 'https://srs-builder.vercel.app/',
