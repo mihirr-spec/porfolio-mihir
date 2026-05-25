@@ -3,7 +3,38 @@
 @tailwind utilities;
 
 /* ── Theme tokens ──────────────────────────────────────── */
+    /* DEFAULT: white / light */
     :root {
+      --bg: #F7F7F7;
+      --surface: #FFFFFF;
+      --text: #0D0D0D;
+      --ta05: rgba(13,13,13,0.04);
+      --ta06: rgba(13,13,13,0.06);
+      --ta07: rgba(13,13,13,0.07);
+      --ta09: rgba(13,13,13,0.09);
+      --ta10: rgba(13,13,13,0.10);
+      --ta12: rgba(13,13,13,0.12);
+      --ta16: rgba(13,13,13,0.16);
+      --ta20: rgba(13,13,13,0.20);
+      --ta30: rgba(13,13,13,0.28);
+      --ta40: rgba(13,13,13,0.42);
+      --ta45: rgba(13,13,13,0.50);
+      --ta50: rgba(13,13,13,0.55);
+      --ta60: rgba(13,13,13,0.65);
+      --hero-grad: linear-gradient(180deg, #111111 0%, #3a3a3a 100%);
+      --nav-bg: rgba(247,247,247,0.92);
+      --nav-border: rgba(13,13,13,0.08);
+      --scroll-track: #F7F7F7;
+      --scroll-thumb: #ccc;
+      --jt-shadow: #F7F7F7;
+      --services-bg: #EFEFEF;
+      --services-text: #0C0C0C;
+      --services-border: rgba(13,13,13,0.10);
+      --card-empty: linear-gradient(135deg, #e8e8e8 0%, #f0f0f0 100%);
+      --card-dots: rgba(13,13,13,0.05);
+    }
+    /* DARK MODE: toggled via html.dark */
+    html.dark {
       --bg: #0C0C0C;
       --surface: #0D0D14;
       --text: #D7E2EA;
@@ -32,39 +63,25 @@
       --card-empty: linear-gradient(135deg, #0f0f18 0%, #15151f 100%);
       --card-dots: rgba(215,226,234,0.06);
     }
-    .light {
-      --bg: #F0F2F7;
-      --surface: #FFFFFF;
-      --text: #1a1a2e;
-      --ta05: rgba(26,26,46,0.05);
-      --ta06: rgba(26,26,46,0.07);
-      --ta07: rgba(26,26,46,0.09);
-      --ta09: rgba(26,26,46,0.10);
-      --ta10: rgba(26,26,46,0.12);
-      --ta12: rgba(26,26,46,0.14);
-      --ta16: rgba(26,26,46,0.18);
-      --ta20: rgba(26,26,46,0.22);
-      --ta30: rgba(26,26,46,0.35);
-      --ta40: rgba(26,26,46,0.55);
-      --ta45: rgba(26,26,46,0.60);
-      --ta50: rgba(26,26,46,0.65);
-      --ta60: rgba(26,26,46,0.75);
-      --hero-grad: linear-gradient(180deg, #2e3545 0%, #1a2030 100%);
-      --nav-bg: rgba(240,242,247,0.88);
-      --nav-border: rgba(26,26,46,0.08);
-      --scroll-track: #F0F2F7;
-      --scroll-thumb: #bbb;
-      --jt-shadow: #F0F2F7;
-      --services-bg: #E8EAF2;
-      --services-text: #0C0C0C;
-      --services-border: rgba(12,12,12,0.10);
-      --card-empty: linear-gradient(135deg, #e4e7f0 0%, #d8dce8 100%);
-      --card-dots: rgba(26,26,46,0.06);
-    }
 
     *, *::before, *::after { box-sizing: border-box; }
     html, body, #root { background: var(--bg); margin: 0; padding: 0; transition: background 0.4s ease, color 0.4s ease; }
     body { font-family: 'Kanit', sans-serif; -webkit-font-smoothing: antialiased; }
+
+    /* ── Grid texture (light: dark lines, dark: white lines) ── */
+    section, header {
+      background-image:
+        linear-gradient(rgba(0,0,0,0.042) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.042) 1px, transparent 1px) !important;
+      background-size: 28px 28px !important;
+      background-color: var(--bg) !important;
+    }
+    html.dark section, html.dark header {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px) !important;
+    }
+
     /* Smooth transitions for structural theme-aware elements */
     section, header, footer, nav {
       transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
@@ -97,29 +114,34 @@
       overflow: hidden;
       transition: border-color 0.35s, transform 0.2s;
     }
+    /* Light default: fills dark, reveals white text */
     .resume-btn::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: #ffffff;
+      background: #0D0D0D;
       transform: translateX(-100%);
       transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 0;
     }
     .resume-btn:hover::before { transform: translateX(0); }
-    .resume-btn:hover { border-color: #ffffff; transform: translateY(-2px); }
-    /* default layer: light text, hidden when hovered */
+    .resume-btn:hover { border-color: #0D0D0D; transform: translateY(-2px); }
+    /* default layer: dark text, hidden when hovered */
     .resume-btn .btn-default { position: relative; z-index: 1; transition: opacity 0s 0.18s; }
     .resume-btn:hover .btn-default { opacity: 0; transition: opacity 0s; }
-    /* dark layer: black text, revealed on hover synced with fill */
+    /* hover layer: white text, revealed on hover synced with dark fill */
     .resume-btn .btn-hover {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center; gap: 12px;
-      color: #111111; z-index: 2;
+      color: #FFFFFF; z-index: 2;
       clip-path: inset(0 100% 0 0);
       transition: clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .resume-btn:hover .btn-hover { clip-path: inset(0 0% 0 0); }
+    /* Dark mode override: fills white, reveals dark text */
+    html.dark .resume-btn::before { background: #ffffff; }
+    html.dark .resume-btn:hover { border-color: #ffffff; }
+    html.dark .resume-btn .btn-hover { color: #111111; }
 
     /* Scroll anchors clear the fixed nav */
     [id] { scroll-margin-top: 80px; }
@@ -224,47 +246,8 @@
     .jt-card { padding: 20px 22px; }
   }
 
-/* ── Mobile: white + grid theme ───────────────────────── */
+/* ── Mobile layout ─────────────────────────────────────── */
 @media (max-width: 768px) {
-  :root {
-    --bg: #F7F7F7;
-    --surface: #FFFFFF;
-    --text: #0D0D0D;
-    --ta05: rgba(13,13,13,0.04);
-    --ta06: rgba(13,13,13,0.06);
-    --ta07: rgba(13,13,13,0.07);
-    --ta09: rgba(13,13,13,0.09);
-    --ta10: rgba(13,13,13,0.10);
-    --ta12: rgba(13,13,13,0.12);
-    --ta16: rgba(13,13,13,0.16);
-    --ta20: rgba(13,13,13,0.20);
-    --ta30: rgba(13,13,13,0.28);
-    --ta40: rgba(13,13,13,0.42);
-    --ta45: rgba(13,13,13,0.50);
-    --ta50: rgba(13,13,13,0.55);
-    --ta60: rgba(13,13,13,0.65);
-    --hero-grad: linear-gradient(180deg, #111111 0%, #333333 100%);
-    --nav-bg: rgba(247,247,247,0.92);
-    --nav-border: rgba(13,13,13,0.08);
-    --scroll-track: #F7F7F7;
-    --scroll-thumb: #ccc;
-    --jt-shadow: #F7F7F7;
-    --services-bg: #EFEFEF;
-    --services-text: #0C0C0C;
-    --services-border: rgba(13,13,13,0.10);
-    --card-empty: linear-gradient(135deg, #e8e8e8 0%, #f0f0f0 100%);
-    --card-dots: rgba(13,13,13,0.05);
-  }
-
-  /* Grid texture on all sections */
-  section, header {
-    background-image:
-      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px) !important;
-    background-size: 28px 28px !important;
-    background-color: #F7F7F7 !important;
-  }
-
   /* ── Nav ── */
   .desktop-nav { display: none !important; }
   .mobile-nav-btns { display: flex !important; }
@@ -304,10 +287,8 @@
   .hero-subtitle { display: none !important; }
 
   /* ── About ── */
-  .resume-btn::before { background: #0D0D0D; }
-  .resume-btn:hover,
-  .resume-btn:active { border-color: #0D0D0D; transform: none; }
-  .resume-btn .btn-hover { color: #FFFFFF; }
+  /* resume-btn: tap on mobile — disable the translateY lift */
+  .resume-btn:active { transform: none; }
 
   /* ── Project cards: remove sticky stacking on mobile ── */
   .project-stack-card {

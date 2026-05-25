@@ -94,12 +94,12 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
   /* ─── NavBar (fixed, blur on scroll) ────────────────────── */
   function NavBar() {
     const [scrolled, setScrolled] = useState(false);
-    const [isDark, setIsDark] = useState(true);
+    const [isDark, setIsDark] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
       const saved = localStorage.getItem('theme');
-      if (saved === 'light') { document.documentElement.classList.add('light'); setIsDark(false); }
+      if (saved === 'dark') { document.documentElement.classList.add('dark'); setIsDark(true); }
       const fn = () => setScrolled(window.scrollY > 48);
       window.addEventListener('scroll', fn, { passive: true });
       return () => window.removeEventListener('scroll', fn);
@@ -111,9 +111,9 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     }, [menuOpen]);
 
     const toggleTheme = () => {
-      const nowLight = document.documentElement.classList.toggle('light');
-      setIsDark(!nowLight);
-      localStorage.setItem('theme', nowLight ? 'light' : 'dark');
+      const nowDark = document.documentElement.classList.toggle('dark');
+      setIsDark(nowDark);
+      localStorage.setItem('theme', nowDark ? 'dark' : 'light');
     };
 
     const ThemeBtn = () => (
