@@ -334,159 +334,214 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     );
   }
 
-  /* ─── Mobile Tech Orb — floating node network ─────────── */
-  const MOBILE_TECH_NODES = [
-    { name: 'React',       icon: _DI+'react/react-original.svg' },
-    { name: 'TypeScript',  icon: _DI+'typescript/typescript-original.svg' },
-    { name: 'Python',      icon: _DI+'python/python-original.svg' },
-    { name: 'Next.js',     icon: _DI+'nextjs/nextjs-original.svg', invert: true },
-    { name: 'Node.js',     icon: _DI+'nodejs/nodejs-original.svg' },
-    { name: 'FastAPI',     icon: _DI+'fastapi/fastapi-original.svg' },
-    { name: 'JavaScript',  icon: _DI+'javascript/javascript-original.svg' },
-    { name: 'Tailwind',    icon: _DI+'tailwindcss/tailwindcss-original.svg' },
-    { name: 'Docker',      icon: _DI+'docker/docker-original.svg' },
-    { name: 'PostgreSQL',  icon: _DI+'postgresql/postgresql-original.svg' },
-    { name: 'MongoDB',     icon: _DI+'mongodb/mongodb-original.svg' },
-    { name: 'Supabase',    icon: _DI+'supabase/supabase-original.svg' },
-    { name: 'Git',         icon: _DI+'git/git-original.svg' },
-    { name: 'PyTorch',     icon: _DI+'pytorch/pytorch-original.svg' },
-    { name: 'TensorFlow',  icon: _DI+'tensorflow/tensorflow-original.svg' },
-    { name: 'AWS',         icon: _DI+'amazonwebservices/amazonwebservices-plain.svg' },
-    { name: 'Firebase',    icon: _DI+'firebase/firebase-original.svg' },
-    { name: 'Vercel',      icon: _DI+'vercel/vercel-original.svg', invert: true },
+  /* ─── Mobile Tech Prism — interactive octagonal prism ─── */
+  const PRISM_NODES = [
+    // Top ring (vertices 0-7)
+    { name: 'React',      icon: _DI+'react/react-original.svg' },
+    { name: 'TypeScript', icon: _DI+'typescript/typescript-original.svg' },
+    { name: 'Python',     icon: _DI+'python/python-original.svg' },
+    { name: 'Next.js',    icon: _DI+'nextjs/nextjs-original.svg' },
+    { name: 'Node.js',    icon: _DI+'nodejs/nodejs-original.svg' },
+    { name: 'FastAPI',    icon: _DI+'fastapi/fastapi-original.svg' },
+    { name: 'JavaScript', icon: _DI+'javascript/javascript-original.svg' },
+    { name: 'Tailwind',   icon: _DI+'tailwindcss/tailwindcss-original.svg' },
+    // Bottom ring (vertices 8-15)
+    { name: 'Docker',     icon: _DI+'docker/docker-original.svg' },
+    { name: 'PostgreSQL', icon: _DI+'postgresql/postgresql-original.svg' },
+    { name: 'MongoDB',    icon: _DI+'mongodb/mongodb-original.svg' },
+    { name: 'Supabase',   icon: _DI+'supabase/supabase-original.svg' },
+    { name: 'Git',        icon: _DI+'git/git-original.svg' },
+    { name: 'PyTorch',    icon: _DI+'pytorch/pytorch-original.svg' },
+    { name: 'AWS',        icon: _DI+'amazonwebservices/amazonwebservices-plain.svg' },
+    { name: 'Vercel',     icon: _DI+'vercel/vercel-original.svg' },
   ];
 
-  function MobileTechOrb() {
+  function MobileTechPrism() {
     const canvasRef = useRef(null);
-    const stateRef = useRef({ ry: 0, images: {}, frame: null });
+    const st = useRef({ ry: 0, rx: 0.28, velY: 0, dragging: false, lastX: 0, lastY: 0, images: {}, frame: null });
 
-    // Fibonacci sphere — evenly distributes N points on sphere surface
-    const basePts = useMemo(() => {
-      const n = MOBILE_TECH_NODES.length;
-      const golden = Math.PI * (3 - Math.sqrt(5));
-      return MOBILE_TECH_NODES.map((tech, i) => {
-        const y  = 1 - (i / (n - 1)) * 2;
-        const r  = Math.sqrt(1 - y * y);
-        const th = golden * i;
-        return { ...tech, x0: Math.cos(th) * r, y0: y, z0: Math.sin(th) * r };
+    // Octagonal prism: 8 top + 8 bottom = 16 vertices
+    const verts = useMemo(() => {
+      const pts = [];
+      const R = 1.0, H = 1.1; // radius and half-height in world units
+      for (let i = 0; i < 8; i++) {
+        const a = Math.PI / 8 + (2 * Math.PI * i) / 8; // flat-face-forward offset
+        pts.push([R * Math.cos(a), -H, R * Math.sin(a)]); // top ring
+      }
+      for (let i = 0; i < 8; i++) {
+        const a = Math.PI / 8 + (2 * Math.PI * i) / 8;
+        pts.push([R * Math.cos(a),  H, R * Math.sin(a)]); // bottom ring
+      }
+      return pts;
+    }, []);
+
+    // All 24 edges: 8 top + 8 bottom + 8 vertical
+    const edges = useMemo(() => {
+      const e = [];
+      for (let i = 0; i < 8; i++) {
+        e.push([i, (i + 1) % 8]);           // top ring
+        e.push([8 + i, 8 + (i + 1) % 8]);  // bottom ring
+        e.push([i, 8 + i]);                  // vertical pillar
+      }
+      return e;
+    }, []);
+
+    // Pre-load icons
+    useEffect(() => {
+      PRISM_NODES.forEach(n => {
+        if (!n.icon) return;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = n.icon;
+        img.onload = () => { st.current.images[n.name] = img; };
       });
     }, []);
 
-    // Precompute which pairs are "close" on the sphere (for edge lines)
-    const connPairs = useMemo(() => {
-      const pairs = [];
-      basePts.forEach((a, i) => basePts.forEach((b, j) => {
-        if (j <= i) return;
-        if (Math.hypot(a.x0 - b.x0, a.y0 - b.y0, a.z0 - b.z0) < 0.68) pairs.push([i, j]);
-      }));
-      return pairs;
-    }, [basePts]);
-
-    // Pre-load all icons
-    useEffect(() => {
-      basePts.forEach(node => {
-        if (!node.icon) return;
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = node.icon;
-        img.onload = () => { stateRef.current.images[node.name] = img; };
-      });
-    }, [basePts]);
-
-    // Canvas draw loop
+    // Draw loop
     useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const L = 320;
-      canvas.width  = L * dpr;
-      canvas.height = L * dpr;
+      const W = 340, H = 430;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
       ctx.scale(dpr, dpr);
-      const cx = L / 2, cy = L / 2;
-      const R  = L * 0.36;        // sphere radius
-      const RX = 0.22;            // fixed X tilt so top is visible
-      const cosX = Math.cos(RX), sinX = Math.sin(RX);
+      const cx = W / 2, cy = H / 2 - 10;
+      const SC = 105;   // world-to-pixel scale
+      const FL = 860;   // perspective focal length
       let lastT = 0;
-      const FPS_INTERVAL = 1000 / 30; // 30 fps is smooth enough
 
-      const project = (ry) => {
-        const cosY = Math.cos(ry), sinY = Math.sin(ry);
-        return basePts.map((node, idx) => {
-          const x1 =  node.x0 * cosY + node.z0 * sinY;
-          const z1 = -node.x0 * sinY + node.z0 * cosY;
-          const y2 =  node.y0 * cosX - z1 * sinX;
-          const z2 =  node.y0 * sinX + z1 * cosX;
-          const scale = (z2 + 1.5) / 2.5;          // 0.2 → 1.0
-          return { ...node, idx, sx: cx + x1 * R, sy: cy + y2 * R, scale, z: z2 };
-        });
+      // Project a 3D point → 2D screen point
+      const proj = (px, py, pz, rx, ry) => {
+        const x1 =  px * Math.cos(ry) + pz * Math.sin(ry);
+        const z1 = -px * Math.sin(ry) + pz * Math.cos(ry);
+        const y2 =  py * Math.cos(rx) - z1 * Math.sin(rx);
+        const z2 =  py * Math.sin(rx) + z1 * Math.cos(rx);
+        const d  = FL / (FL + z2 * SC);
+        return { sx: cx + x1 * SC * d, sy: cy + y2 * SC * d, z: z2, d };
       };
 
       const draw = (ts) => {
-        stateRef.current.frame = requestAnimationFrame(draw);
-        if (ts - lastT < FPS_INTERVAL) return;
+        st.current.frame = requestAnimationFrame(draw);
+        if (ts - lastT < 1000 / 40) return; // ~40 fps
         lastT = ts;
 
-        stateRef.current.ry += 0.012;
-        const all    = project(stateRef.current.ry);
-        const byIdx  = all;                              // original order for edges
-        const sorted = [...all].sort((a, b) => a.z - b.z); // back→front for drawing
+        const s = st.current;
+        if (!s.dragging) { s.ry += 0.010; s.ry += s.velY; s.velY *= 0.90; }
 
-        ctx.clearRect(0, 0, L, L);
+        // Project all 16 vertices
+        const p = verts.map(([x, y, z], i) => ({
+          ...proj(x, y, z, s.rx, s.ry),
+          node: PRISM_NODES[i],
+        }));
 
-        // ── Edge lines ──────────────────────────────────────
-        connPairs.forEach(([i, j]) => {
-          const a = byIdx[i], b = byIdx[j];
-          const avgS = (a.scale + b.scale) / 2;
-          const alpha = Math.max(0.12, avgS * 0.55);
+        ctx.clearRect(0, 0, W, H);
+
+        // ── All 24 edges ────────────────────────────────────
+        edges.forEach(([i, j]) => {
+          const a = p[i], b = p[j];
+          const avgZ = (a.z + b.z) / 2;
+          // Back edges: faded but clearly visible; front edges: bold
+          const alpha = 0.18 + ((avgZ + 1) / 2) * 0.62;
+          const width = avgZ > 0 ? 1.6 : 1.0;
           ctx.beginPath();
           ctx.moveTo(a.sx, a.sy);
           ctx.lineTo(b.sx, b.sy);
-          ctx.strokeStyle = `rgba(0,0,0,${alpha.toFixed(3)})`;
-          ctx.lineWidth = 1.4;
+          ctx.strokeStyle = `rgba(30,30,30,${alpha.toFixed(3)})`;
+          ctx.lineWidth = width;
           ctx.stroke();
         });
 
-        // ── Nodes (back → front so front always on top) ─────
-        sorted.forEach(node => {
-          const r     = 11 + node.scale * 14;          // 11 → 25 px
-          const alpha = Math.max(0.15, node.scale * 0.88 + 0.12);
+        // ── Nodes back → front ──────────────────────────────
+        [...p].sort((a, b) => a.z - b.z).forEach(({ sx, sy, z, d, node }) => {
+          if (!node) return;
+          const r     = Math.round(12 + d * 10);   // 12–22 px
+          const alpha = Math.max(0.22, d * 0.85 + 0.15);
 
           ctx.save();
           ctx.globalAlpha = alpha;
 
-          // Drop shadow
-          ctx.shadowBlur  = node.scale * 14;
+          // Shadow + circle
+          ctx.shadowBlur  = d * 10;
           ctx.shadowColor = 'rgba(0,0,0,0.18)';
-
-          // White circle
           ctx.beginPath();
-          ctx.arc(node.sx, node.sy, r, 0, Math.PI * 2);
+          ctx.arc(sx, sy, r, 0, Math.PI * 2);
           ctx.fillStyle = '#FFFFFF';
           ctx.fill();
           ctx.shadowBlur = 0;
-          ctx.strokeStyle = 'rgba(0,0,0,0.07)';
-          ctx.lineWidth = 0.7;
+          ctx.strokeStyle = `rgba(0,0,0,${(alpha * 0.12).toFixed(2)})`;
+          ctx.lineWidth = 0.8;
           ctx.stroke();
 
           // Icon
-          const img = stateRef.current.images[node.name];
+          const img = s.images[node.name];
           if (img) {
-            const ir = r * 0.60;
-            ctx.drawImage(img, node.sx - ir, node.sy - ir, ir * 2, ir * 2);
+            const ir = r * 0.58;
+            ctx.drawImage(img, sx - ir, sy - ir, ir * 2, ir * 2);
           }
+
+          // Name label
+          const fs = Math.max(7, Math.round(6 + d * 5));
+          ctx.font = `700 ${fs}px Kanit, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillStyle = `rgba(10,10,10,${(alpha * 0.92).toFixed(2)})`;
+          ctx.fillText(node.name, sx, sy + r + 2);
 
           ctx.restore();
         });
       };
 
-      stateRef.current.frame = requestAnimationFrame(draw);
-      return () => cancelAnimationFrame(stateRef.current.frame);
-    }, [basePts, connPairs]);
+      st.current.frame = requestAnimationFrame(draw);
+
+      // ── Touch + mouse interaction ─────────────────────────
+      const xy = e => e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+                                 : { x: e.clientX,            y: e.clientY };
+
+      const onStart = e => {
+        const { x, y } = xy(e);
+        Object.assign(st.current, { dragging: true, lastX: x, lastY: y, velY: 0 });
+      };
+      const onMove = e => {
+        if (!st.current.dragging) return;
+        if (e.cancelable) e.preventDefault();
+        const { x, y } = xy(e);
+        const dx = x - st.current.lastX;
+        const dy = y - st.current.lastY;
+        st.current.ry  += dx * 0.013;
+        st.current.rx   = Math.max(-0.55, Math.min(0.65, st.current.rx + dy * 0.009));
+        st.current.velY = dx * 0.013;
+        st.current.lastX = x;
+        st.current.lastY = y;
+      };
+      const onEnd = () => { st.current.dragging = false; };
+
+      canvas.addEventListener('touchstart',  onStart, { passive: true });
+      canvas.addEventListener('touchmove',   onMove,  { passive: false });
+      canvas.addEventListener('touchend',    onEnd);
+      canvas.addEventListener('mousedown',   onStart);
+      canvas.addEventListener('mousemove',   onMove);
+      canvas.addEventListener('mouseup',     onEnd);
+      canvas.addEventListener('mouseleave',  onEnd);
+
+      return () => {
+        cancelAnimationFrame(st.current.frame);
+        canvas.removeEventListener('touchstart',  onStart);
+        canvas.removeEventListener('touchmove',   onMove);
+        canvas.removeEventListener('touchend',    onEnd);
+        canvas.removeEventListener('mousedown',   onStart);
+        canvas.removeEventListener('mousemove',   onMove);
+        canvas.removeEventListener('mouseup',     onEnd);
+        canvas.removeEventListener('mouseleave',  onEnd);
+      };
+    }, [verts, edges]);
 
     return (
       <canvas ref={canvasRef}
-        style={{ width: '100%', height: 'auto', display: 'block', maxWidth: '320px', margin: '0 auto' }}
+        style={{ width: '100%', height: 'auto', display: 'block',
+                 maxWidth: '340px', margin: '0 auto',
+                 cursor: 'grab', touchAction: 'none' }}
       />
     );
   }
@@ -523,7 +578,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         {/* Mobile: floating node-network orb */}
         <div className="marquee-mobile-grid px-6 pb-4">
           <p className="font-black uppercase tracking-[0.2em] text-center mb-8" style={{ color: 'var(--text)', opacity: 0.3, fontSize: '0.6rem' }}>Tech Stack</p>
-          <MobileTechOrb />
+          <MobileTechPrism />
         </div>
 
       </section>
