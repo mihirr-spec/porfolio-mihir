@@ -72,6 +72,16 @@
     .hero-mobile-bio { display: none; }
     .marquee-mobile-grid { display: none; }
 
+    /* Tech Orb floating animation */
+    @keyframes techOrbFloat {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+      50%       { transform: translate(-50%, -50%) translateY(-5px); }
+    }
+    .tech-orb-node {
+      animation: techOrbFloat 3.6s ease-in-out infinite;
+      will-change: transform;
+    }
+
     /* ── Grid texture (light: dark lines, dark: white lines) ── */
     section, header, footer {
       background-image:

@@ -334,25 +334,108 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     );
   }
 
-  /* Mobile-only: compact grid tile — icon + name, always coloured */
-  function TechTileMobile({ name, icon, invert = false }) {
+  /* ─── Mobile Tech Orb — floating node network ─────────── */
+  const MOBILE_TECH_NODES = [
+    { name: 'React',       icon: _DI+'react/react-original.svg' },
+    { name: 'TypeScript',  icon: _DI+'typescript/typescript-original.svg' },
+    { name: 'Python',      icon: _DI+'python/python-original.svg' },
+    { name: 'Next.js',     icon: _DI+'nextjs/nextjs-original.svg', invert: true },
+    { name: 'Node.js',     icon: _DI+'nodejs/nodejs-original.svg' },
+    { name: 'FastAPI',     icon: _DI+'fastapi/fastapi-original.svg' },
+    { name: 'JavaScript',  icon: _DI+'javascript/javascript-original.svg' },
+    { name: 'Tailwind',    icon: _DI+'tailwindcss/tailwindcss-original.svg' },
+    { name: 'Docker',      icon: _DI+'docker/docker-original.svg' },
+    { name: 'PostgreSQL',  icon: _DI+'postgresql/postgresql-original.svg' },
+    { name: 'MongoDB',     icon: _DI+'mongodb/mongodb-original.svg' },
+    { name: 'Supabase',    icon: _DI+'supabase/supabase-original.svg' },
+    { name: 'Git',         icon: _DI+'git/git-original.svg' },
+    { name: 'PyTorch',     icon: _DI+'pytorch/pytorch-original.svg' },
+    { name: 'TensorFlow',  icon: _DI+'tensorflow/tensorflow-original.svg' },
+    { name: 'AWS',         icon: _DI+'amazonwebservices/amazonwebservices-plain.svg' },
+    { name: 'Firebase',    icon: _DI+'firebase/firebase-original.svg' },
+    { name: 'Vercel',      icon: _DI+'vercel/vercel-original.svg', invert: true },
+  ];
+
+  function MobileTechOrb() {
+    // 1 center + 5 inner ring + 12 outer ring = 18 nodes
+    const nodeData = useMemo(() => MOBILE_TECH_NODES.map((tech, i) => {
+      let x, y;
+      if (i === 0) { x = 50; y = 50; }
+      else if (i <= 5) {
+        const a = ((i - 1) / 5) * 2 * Math.PI - Math.PI / 2;
+        x = 50 + 23 * Math.cos(a); y = 50 + 23 * Math.sin(a);
+      } else {
+        const a = ((i - 6) / 12) * 2 * Math.PI - Math.PI / 2;
+        x = 50 + 41 * Math.cos(a); y = 50 + 41 * Math.sin(a);
+      }
+      return { ...tech, x, y };
+    }), []);
+
+    // Connect nodes closer than threshold (in 0–100 coordinate units)
+    const conns = useMemo(() => {
+      const lines = [];
+      nodeData.forEach((a, i) => nodeData.forEach((b, j) => {
+        if (j <= i) return;
+        if (Math.hypot(a.x - b.x, a.y - b.y) < 27) lines.push([i, j]);
+      }));
+      return lines;
+    }, [nodeData]);
+
     return (
-      <div style={{
-        background: '#FFFFFF',
-        border: '1px solid rgba(0,0,0,0.07)',
-        borderRadius: '14px',
-        padding: '14px 6px 12px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '8px',
-        boxShadow: '0 1px 5px rgba(0,0,0,0.06)',
-      }}>
-        {icon
-          ? <img src={icon} alt={name} loading="lazy" style={{ width: '30px', height: '30px', objectFit: 'contain', filter: invert ? 'brightness(0)' : 'none' }} />
-          : <div style={{ width: '30px', height: '30px' }} />
-        }
-        <span style={{ fontFamily: 'Kanit, sans-serif', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1a1a2e', textAlign: 'center', lineHeight: 1.2 }}>{name}</span>
+      <div style={{ position: 'relative', width: '100%', paddingBottom: '100%', maxWidth: '340px', margin: '0 auto' }}>
+        {/* Faint orbital ring */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          width: '86%', height: '86%',
+          transform: 'translate(-50%, -50%)',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 68%)',
+          border: '1px dashed rgba(0,0,0,0.07)',
+          pointerEvents: 'none',
+        }} />
+
+        {/* SVG connection lines */}
+        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+          <defs>
+            <radialGradient id="orbLineGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(0,0,0,0.22)" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.04)" />
+            </radialGradient>
+          </defs>
+          {conns.map(([i, j], k) => (
+            <line key={k}
+              x1={nodeData[i].x} y1={nodeData[i].y}
+              x2={nodeData[j].x} y2={nodeData[j].y}
+              stroke="url(#orbLineGrad)" strokeWidth="0.4"
+            />
+          ))}
+        </svg>
+
+        {/* Nodes */}
+        {nodeData.map((node, i) => {
+          const isCenter = i === 0;
+          const sz = isCenter ? 56 : 44;
+          const iconSz = isCenter ? 28 : 22;
+          return (
+            <div key={node.name} className="tech-orb-node" style={{
+              position: 'absolute',
+              left: `${node.x}%`, top: `${node.y}%`,
+              width: `${sz}px`, height: `${sz}px`,
+              borderRadius: '50%',
+              background: '#FFFFFF',
+              border: isCenter ? '1.5px solid rgba(0,0,0,0.13)' : '1px solid rgba(0,0,0,0.08)',
+              boxShadow: isCenter ? '0 4px 22px rgba(0,0,0,0.13)' : '0 2px 10px rgba(0,0,0,0.07)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              animationDelay: `${(i * 0.28) % 2.8}s`,
+              zIndex: isCenter ? 3 : 1,
+            }}>
+              {node.icon && <img src={node.icon} alt={node.name} loading="lazy"
+                style={{ width: `${iconSz}px`, height: `${iconSz}px`, objectFit: 'contain',
+                  filter: node.invert ? 'brightness(0)' : 'none' }} />}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -374,7 +457,6 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     }, []);
     const triple = (arr) => [...arr, ...arr, ...arr];
     const dirs = [1, -1, 1];
-    const allTech = useMemo(() => TECH_ROWS.flat(), []);
     return (
       <section ref={sectionRef} className="pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden" style={{ background: 'var(--bg)' }}>
 
@@ -387,12 +469,10 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
           ))}
         </div>
 
-        {/* Mobile: static grid, all logos always visible + coloured */}
-        <div className="marquee-mobile-grid">
-          <p className="font-black uppercase tracking-[0.18em] text-center mb-5" style={{ color: 'var(--text)', opacity: 0.35, fontSize: '0.65rem' }}>Tech Stack</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', padding: '0 16px 8px' }}>
-            {allTech.map((tech, i) => <TechTileMobile key={i} {...tech} />)}
-          </div>
+        {/* Mobile: floating node-network orb */}
+        <div className="marquee-mobile-grid px-6 pb-4">
+          <p className="font-black uppercase tracking-[0.2em] text-center mb-8" style={{ color: 'var(--text)', opacity: 0.3, fontSize: '0.6rem' }}>Tech Stack</p>
+          <MobileTechOrb />
         </div>
 
       </section>
