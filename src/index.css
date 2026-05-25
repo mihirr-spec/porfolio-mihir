@@ -223,3 +223,126 @@
     .jt-item-left .jt-date-pill, .jt-item-right .jt-date-pill { left: auto; right: auto; }
     .jt-card { padding: 20px 22px; }
   }
+
+/* ── Mobile: white + grid theme ───────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --bg: #F7F7F7;
+    --surface: #FFFFFF;
+    --text: #0D0D0D;
+    --ta05: rgba(13,13,13,0.04);
+    --ta06: rgba(13,13,13,0.06);
+    --ta07: rgba(13,13,13,0.07);
+    --ta09: rgba(13,13,13,0.09);
+    --ta10: rgba(13,13,13,0.10);
+    --ta12: rgba(13,13,13,0.12);
+    --ta16: rgba(13,13,13,0.16);
+    --ta20: rgba(13,13,13,0.20);
+    --ta30: rgba(13,13,13,0.28);
+    --ta40: rgba(13,13,13,0.42);
+    --ta45: rgba(13,13,13,0.50);
+    --ta50: rgba(13,13,13,0.55);
+    --ta60: rgba(13,13,13,0.65);
+    --hero-grad: linear-gradient(180deg, #111111 0%, #333333 100%);
+    --nav-bg: rgba(247,247,247,0.92);
+    --nav-border: rgba(13,13,13,0.08);
+    --scroll-track: #F7F7F7;
+    --scroll-thumb: #ccc;
+    --jt-shadow: #F7F7F7;
+    --services-bg: #EFEFEF;
+    --services-text: #0C0C0C;
+    --services-border: rgba(13,13,13,0.10);
+    --card-empty: linear-gradient(135deg, #e8e8e8 0%, #f0f0f0 100%);
+    --card-dots: rgba(13,13,13,0.05);
+  }
+
+  /* Grid texture on all sections */
+  section, header {
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px) !important;
+    background-size: 28px 28px !important;
+    background-color: #F7F7F7 !important;
+  }
+
+  /* ── Nav ── */
+  .desktop-nav { display: none !important; }
+  .mobile-nav-btns { display: flex !important; }
+
+  /* Mobile nav overlay */
+  .mobile-menu {
+    position: fixed; inset: 0; z-index: 49;
+    background-color: #F7F7F7;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2rem;
+  }
+  .mobile-menu a {
+    font-size: clamp(2.2rem, 11vw, 3.2rem);
+    font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--text);
+    text-decoration: none; opacity: 0.82;
+    transition: opacity 0.2s;
+  }
+  .mobile-menu a:active { opacity: 1; }
+
+  /* ── Hero ── */
+  .hero-heading { word-break: break-word; }
+
+  /* ── About ── */
+  .resume-btn::before { background: #0D0D0D; }
+  .resume-btn:hover,
+  .resume-btn:active { border-color: #0D0D0D; transform: none; }
+  .resume-btn .btn-hover { color: #FFFFFF; }
+
+  /* ── Project cards: remove sticky stacking on mobile ── */
+  .project-stack-card {
+    position: relative !important;
+    top: auto !important;
+    height: auto !important;
+    margin-bottom: 18px;
+  }
+  /* Let inner divs shrink to content height */
+  .project-stack-card > div,
+  .project-stack-card > div > div,
+  .project-stack-card > div > div > div {
+    height: auto !important;
+  }
+  /* Image grid: single tall image only */
+  .project-image-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 200px !important;
+    height: 200px !important;
+  }
+  .project-image-grid > div:nth-child(2) { display: none !important; }
+  .project-image-grid > div:nth-child(3) { display: none !important; }
+
+  /* ── Services ── */
+  /* Reduce the giant number on mobile */
+  .services-num { font-size: clamp(2rem, 12vw, 60px) !important; }
+  /* Tighten row padding */
+  .services-row { padding-top: 20px !important; padding-bottom: 20px !important; }
+
+  /* ── Journey cover cards on mobile ── */
+  .jt-card-cover-link {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* ── Footer ── */
+  /* Stack email + socials vertically, centred */
+  .footer-cta-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 28px !important;
+    text-align: center;
+  }
+  .footer-socials {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 20px !important;
+  }
+}

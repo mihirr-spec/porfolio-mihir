@@ -95,18 +95,20 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
   function NavBar() {
     const [scrolled, setScrolled] = useState(false);
     const [isDark, setIsDark] = useState(true);
+    const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
-      // Init theme from localStorage
       const saved = localStorage.getItem('theme');
-      if (saved === 'light') {
-        document.documentElement.classList.add('light');
-        setIsDark(false);
-      }
+      if (saved === 'light') { document.documentElement.classList.add('light'); setIsDark(false); }
       const fn = () => setScrolled(window.scrollY > 48);
       window.addEventListener('scroll', fn, { passive: true });
       return () => window.removeEventListener('scroll', fn);
     }, []);
+
+    useEffect(() => {
+      document.body.style.overflow = menuOpen ? 'hidden' : '';
+      return () => { document.body.style.overflow = ''; };
+    }, [menuOpen]);
 
     const toggleTheme = () => {
       const nowLight = document.documentElement.classList.toggle('light');
@@ -114,68 +116,81 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       localStorage.setItem('theme', nowLight ? 'light' : 'dark');
     };
 
+    const ThemeBtn = () => (
+      <button onClick={toggleTheme} aria-label="Toggle theme" style={{
+        width: '38px', height: '38px', borderRadius: '50%', border: '1px solid var(--ta16)',
+        background: 'var(--ta07)', cursor: 'pointer', display: 'flex',
+        alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        transition: 'background 0.2s, border-color 0.2s'
+      }}>
+        {isDark ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        )}
+      </button>
+    );
+
     return (
-      <M.header
-        initial={{ opacity: 0, y: -18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-10 py-4 md:py-5"
-        style={{
-          backdropFilter: scrolled ? 'blur(20px) saturate(160%)' : 'none',
-          WebkitBackdropFilter: scrolled ? 'blur(20px) saturate(160%)' : 'none',
-          background: scrolled ? 'var(--nav-bg)' : 'transparent',
-          borderBottom: scrolled ? '1px solid var(--nav-border)' : '1px solid transparent',
-          transition: 'background 0.45s ease, border-color 0.45s ease'
-        }}
-      >
-        <a
-          href="#"
-          className="font-black uppercase tracking-[0.14em] text-sm md:text-[0.95rem] hover:opacity-65 transition-opacity duration-200"
-          style={{ color: 'var(--text)' }}
+      <>
+        <M.header
+          initial={{ opacity: 0, y: -18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
+          className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-10 py-4 md:py-5"
+          style={{
+            backdropFilter: scrolled ? 'blur(20px) saturate(160%)' : 'none',
+            WebkitBackdropFilter: scrolled ? 'blur(20px) saturate(160%)' : 'none',
+            background: scrolled ? 'var(--nav-bg)' : 'transparent',
+            borderBottom: scrolled ? '1px solid var(--nav-border)' : '1px solid transparent',
+            transition: 'background 0.45s ease, border-color 0.45s ease'
+          }}
         >
-          Mihir Sanghvi
-        </a>
-        <nav className="flex items-center gap-5 md:gap-9">
-          {['About', 'Projects', 'Journey', 'Services', 'Contact'].map(l => (
-            <a
-              key={l}
-              href={`#${l.toLowerCase()}`}
-              className="font-medium uppercase tracking-wider text-[0.68rem] md:text-xs hover:opacity-55 transition-opacity duration-200"
-              style={{ color: 'var(--text)' }}
+          <a href="#" className="font-black uppercase tracking-[0.14em] text-sm md:text-[0.95rem] hover:opacity-65 transition-opacity duration-200" style={{ color: 'var(--text)' }}>
+            Mihir Sanghvi
+          </a>
+
+          {/* Desktop nav */}
+          <nav className="desktop-nav flex items-center gap-5 md:gap-9">
+            {['About', 'Projects', 'Journey', 'Services', 'Contact'].map(l => (
+              <a key={l} href={`#${l.toLowerCase()}`}
+                className="font-medium uppercase tracking-wider text-[0.68rem] md:text-xs hover:opacity-55 transition-opacity duration-200"
+                style={{ color: 'var(--text)' }}>{l}</a>
+            ))}
+            <ThemeBtn />
+          </nav>
+
+          {/* Mobile right: theme + hamburger */}
+          <div className="mobile-nav-btns hidden items-center gap-3">
+            <ThemeBtn />
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              aria-label="Menu"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}
             >
-              {l}
-            </a>
-          ))}
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-            style={{
-              width: '38px', height: '38px', borderRadius: '50%', border: '1px solid var(--ta16)',
-              background: 'var(--ta07)', cursor: 'pointer', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              transition: 'background 0.2s, border-color 0.2s'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--ta16)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'var(--ta07)'; }}
-          >
-            {isDark ? (
-              /* Sun icon */
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-              </svg>
-            ) : (
-              /* Moon icon */
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-              </svg>
-            )}
-          </button>
-        </nav>
-      </M.header>
+              <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--text)', borderRadius: '2px', transition: 'transform 0.3s', transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none' }}/>
+              <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--text)', borderRadius: '2px', transition: 'opacity 0.3s', opacity: menuOpen ? 0 : 1 }}/>
+              <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--text)', borderRadius: '2px', transition: 'transform 0.3s', transform: menuOpen ? 'translateY(-7px) rotate(-45deg)' : 'none' }}/>
+            </button>
+          </div>
+        </M.header>
+
+        {/* Mobile full-screen menu */}
+        {menuOpen && (
+          <div className="mobile-menu">
+            {['About', 'Projects', 'Journey', 'Services', 'Contact'].map(l => (
+              <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setMenuOpen(false)}>{l}</a>
+            ))}
+          </div>
+        )}
+      </>
     );
   }
 
@@ -644,13 +659,13 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
               key={s.n}
               delay={i * 0.08}
               y={28}
-              className="flex items-start gap-6 sm:gap-8 md:gap-12 py-8 sm:py-10 md:py-12"
+              className="services-row flex items-start gap-6 sm:gap-8 md:gap-12 py-8 sm:py-10 md:py-12"
               style={{
                 borderTop: '1px solid var(--services-border)',
                 borderBottom: i === SERVICES.length - 1 ? '1px solid var(--services-border)' : 'none'
               }}
             >
-              <div className="font-black leading-none shrink-0" style={{ color: 'var(--services-text)', fontSize: 'clamp(2.8rem, 9vw, 130px)' }}>{s.n}</div>
+              <div className="services-num font-black leading-none shrink-0" style={{ color: 'var(--services-text)', fontSize: 'clamp(2.8rem, 9vw, 130px)' }}>{s.n}</div>
               <div className="flex flex-col gap-3 sm:gap-4 pt-1 sm:pt-3">
                 <div className="font-medium uppercase leading-tight" style={{ color: 'var(--services-text)', fontSize: 'clamp(1rem, 2.1vw, 2rem)' }}>{s.name}</div>
                 <div className="font-light leading-relaxed max-w-2xl" style={{ color: 'var(--services-text)', opacity: 0.55, fontSize: 'clamp(0.82rem, 1.5vw, 1.2rem)' }}>{s.desc}</div>
@@ -750,7 +765,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       // Each card is slightly shorter than the previous so stacking doesn't exceed
       // the section and blurbs can't bleed below the next card.
       <div
-        className="sticky"
+        className="sticky project-stack-card"
         style={{ top: `calc(4.5rem + ${index * 22}px)`, height: `calc(88vh - ${index * 11}px)` }}
       >
         <M.div style={{ scale, transformOrigin: 'top center' }} className="h-full">
@@ -836,7 +851,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
 
             {/* ── RIGHT: image grid ─────────────────────────── */}
             {/* 2-col × 2-row; img3 spans full right column height */}
-            <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-2 p-3 md:p-4" style={{ minHeight: 0 }}>
+            <div className="project-image-grid flex-1 grid grid-cols-2 grid-rows-2 gap-2 p-3 md:p-4" style={{ minHeight: 0 }}>
               <div className="col-start-1 row-start-1 rounded-[14px] md:rounded-[18px] overflow-hidden">
                 <ProjectImage src={project.img1} pos="top" />
               </div>
@@ -903,7 +918,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
               </div>
             </FadeIn>
 
-            <FadeIn delay={0.18} y={28} className="mt-10 sm:mt-16 md:mt-20 flex flex-col sm:flex-row sm:items-end justify-center gap-8 sm:gap-16">
+            <FadeIn delay={0.18} y={28} className="footer-cta-row mt-10 sm:mt-16 md:mt-20 flex flex-col sm:flex-row sm:items-end justify-center gap-8 sm:gap-16">
               {/* Email */}
               <div className="flex flex-col gap-1.5">
                 <span
@@ -924,7 +939,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
               </div>
 
               {/* Social links */}
-              <div className="flex items-center gap-7 sm:gap-9">
+              <div className="footer-socials flex items-center gap-7 sm:gap-9">
                 {[
                   { label: 'GitHub',   href: 'https://github.com/mihirr-spec',
                     icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> },
