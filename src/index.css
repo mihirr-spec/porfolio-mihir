@@ -319,12 +319,21 @@
   /* ── Project cards: sticky stacking on mobile ── */
   .project-stack-card {
     position: sticky !important;
-    height: 82vh !important;   /* override the JS-calculated desktop height */
+    height: 82vh !important;
+    /* GPU layer so sticky scrolling is handled by compositor, not JS */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
   }
   /* Restore full height on inner wrappers */
   .project-stack-card > div,
   .project-stack-card > div > div {
     height: 100% !important;
+  }
+  /* Kill the JS-driven Framer Motion scale — sticky alone handles the layering */
+  .project-stack-card > div {
+    transform: none !important;
+    will-change: auto !important;
   }
   /* Image grid: single tall image only */
   .project-image-grid {

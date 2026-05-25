@@ -1058,7 +1058,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         id="projects"
         ref={containerRef}
         className="rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 relative z-10 px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 md:pt-32 pb-40"
-        style={{ background: 'var(--bg)' }}
+        style={{ background: 'var(--bg)', WebkitOverflowScrolling: 'touch' }}
       >
         <FadeIn as="h2" y={40} className="hero-heading font-black leading-none tracking-tight text-center mb-14 sm:mb-20 md:mb-24" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>
           Projects
