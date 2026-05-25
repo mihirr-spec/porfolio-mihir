@@ -851,7 +851,8 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
           className="hero-heading font-black leading-none tracking-tight text-center mb-16 sm:mb-20 md:mb-24"
           style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}
         >
-          Journey So Far
+          <span className="journey-word1">Journey</span>
+          <span className="journey-word2"> So Far</span>
         </FadeIn>
         <div className="max-w-5xl mx-auto">
           <div ref={timelineRef} className="jt-timeline">

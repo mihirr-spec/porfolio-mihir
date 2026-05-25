@@ -249,6 +249,19 @@
     .jt-date-pill { position: static; display: inline-block; margin-bottom: 14px; }
     .jt-item-left .jt-date-pill, .jt-item-right .jt-date-pill { left: auto; right: auto; }
     .jt-card { padding: 20px 22px; }
+
+    /* ── Mobile perf: skip transform on card entrance, opacity only ── */
+    .jt-card {
+      transform: none !important;
+      transition: opacity 0.35s ease !important;
+      will-change: opacity;
+      contain: layout style;
+    }
+    .jt-card.visible { opacity: 1; transform: none !important; }
+
+    /* Journey heading line break */
+    .journey-word1 { display: block; }
+    .journey-word2 { display: block; }
   }
 
 /* ── Mobile layout ─────────────────────────────────────── */
