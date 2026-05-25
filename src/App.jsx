@@ -227,7 +227,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
           {/* Mobile-only: bio text + resume button directly under heading */}
           <div className="hero-mobile-bio">
             <p className="font-medium text-center leading-relaxed" style={{ color: 'var(--text)', fontSize: '0.95rem', maxWidth: '300px' }}>
-              A computer science student at Manipal University Jaipur, I focus on building AI-powered platforms, full-stack web applications, and developer-friendly experiences.
+              A computer science student at Manipal University Jaipur, focusing on building AI-powered platforms, full-stack web applications, and developer-friendly experiences.
             </p>
             <a
               href="/MihirSanghvi.pdf"
@@ -423,7 +423,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
             About Me
           </FadeIn>
           <AnimatedText
-            text="A computer science student at Manipal University Jaipur, I focus on building AI-powered platforms, full-stack web applications, and developer-friendly experiences."
+            text="A computer science student at Manipal University Jaipur, focusing on building AI-powered platforms, full-stack web applications, and developer-friendly experiences."
             className="font-medium text-center leading-relaxed"
             style={{ color: 'var(--text)', maxWidth: '560px', fontSize: 'clamp(1rem, 2vw, 1.35rem)' }}
           />
