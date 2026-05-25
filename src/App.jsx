@@ -213,16 +213,16 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         className="h-screen flex flex-col relative pt-[60px] md:pt-[68px]"
         style={{ overflowX: 'clip', background: 'var(--bg)' }}
       >
-        <div className="hero-content flex-1 flex flex-col justify-end relative">
+        <div className="hero-content flex-1 flex flex-col justify-center relative">
           {/* Heading */}
           <M.div style={{ y: headingY }} className="overflow-hidden w-full relative z-0 px-2 sm:px-4 md:px-6">
             <FadeIn
               as="h1"
               delay={0.12}
               y={44}
-              className="hero-h1 hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full mt-6 sm:mt-4 md:-mt-4 text-[14vw] sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw]"
+              className="hero-h1 hero-heading font-black tracking-tight leading-none whitespace-nowrap w-full text-[14vw] sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw]"
             >
-              <span className="hero-line1">Hi,</span><span className="hero-line2"> i&apos;m mihir</span>
+              <span className="hero-line1">Hi,</span><span className="hero-line2"> I&apos;m Mihir</span>
             </FadeIn>
           </M.div>
 
