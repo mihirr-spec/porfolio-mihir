@@ -211,16 +211,16 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         className="h-screen flex flex-col relative pt-[60px] md:pt-[68px]"
         style={{ overflowX: 'clip', background: 'var(--bg)' }}
       >
-        <div className="flex-1 flex flex-col justify-end relative">
+        <div className="hero-content flex-1 flex flex-col justify-end relative">
           {/* Heading */}
           <M.div style={{ y: headingY }} className="overflow-hidden w-full relative z-0 px-2 sm:px-4 md:px-6">
             <FadeIn
               as="h1"
               delay={0.12}
               y={44}
-              className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full mt-6 sm:mt-4 md:-mt-4 text-[14vw] sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw]"
+              className="hero-h1 hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full mt-6 sm:mt-4 md:-mt-4 text-[14vw] sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw]"
             >
-              Hi, i&apos;m mihir
+              <span className="hero-line1">Hi,</span><span className="hero-line2"> i&apos;m mihir</span>
             </FadeIn>
           </M.div>
 
@@ -233,7 +233,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
               as="p"
               delay={0.3}
               y={18}
-              className="font-light uppercase tracking-wide leading-snug max-w-[155px] sm:max-w-[210px] md:max-w-[255px]"
+              className="hero-subtitle font-light uppercase tracking-wide leading-snug max-w-[155px] sm:max-w-[210px] md:max-w-[255px]"
               style={{ color: 'var(--text)', fontSize: 'clamp(0.7rem, 1.35vw, 1.4rem)' }}
             >
               a full-stack developer building ai-powered platforms and meaningful digital experiences

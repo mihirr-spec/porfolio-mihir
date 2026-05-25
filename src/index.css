@@ -290,7 +290,18 @@
   .mobile-menu a:active { opacity: 1; }
 
   /* ── Hero ── */
-  .hero-heading { word-break: break-word; }
+  /* Centre heading vertically */
+  .hero-content { justify-content: center !important; }
+  /* Two-line centred heading */
+  .hero-h1 {
+    white-space: normal !important;
+    text-align: center !important;
+    font-size: 19vw !important;
+    line-height: 0.93 !important;
+  }
+  .hero-line1, .hero-line2 { display: block !important; }
+  /* Hide the subtitle blurb */
+  .hero-subtitle { display: none !important; }
 
   /* ── About ── */
   .resume-btn::before { background: #0D0D0D; }
