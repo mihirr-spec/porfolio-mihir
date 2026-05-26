@@ -354,30 +354,31 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
     const lnCol = dark ? 'rgba(180,210,230,0.14)' : 'rgba(10,30,80,0.09)';
 
     // ── Layout ─────────────────────────────────────────────
-    // viewBox 0 0 380 420, centre cx=190 cy=205
-    // outer ring R=148 (9 nodes, 40° apart, starting from north/top)
-    // inner ring r=82  (6 nodes, 60° apart, +30° offset from north)
-    // centre node at (190, 205)
+    // viewBox 0 0 500 540, centre cx=250 cy=280
+    // outer ring R=205 (9 nodes, 40° apart, starting from north)
+    // inner ring r=115 (6 nodes, 60° apart, +30° offset from north)
+    // centre node at (250, 280)
+    const ICO = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/';
     const NODES = [
       // ── Outer ring ──────────────────────────────────────
-      { id:'python',   label:'Python',   cat:'backend',  cx:190, cy:57  }, // θ  0°
-      { id:'fastapi',  label:'FastAPI',  cat:'backend',  cx:285, cy:92  }, // θ 40°
-      { id:'nodejs',   label:'Node',     cat:'backend',  cx:336, cy:179 }, // θ 80°
-      { id:'pytorch',  label:'PyTorch',  cat:'backend',  cx:318, cy:279 }, // θ120°
-      { id:'postgres', label:'Postgres', cat:'data',     cx:241, cy:344 }, // θ160°
-      { id:'mongo',    label:'Mongo',    cat:'data',     cx:139, cy:344 }, // θ200°
-      { id:'docker',   label:'Docker',   cat:'infra',    cx:62,  cy:279 }, // θ240°
-      { id:'aws',      label:'AWS',      cat:'infra',    cx:44,  cy:179 }, // θ280°
-      { id:'git',      label:'Git',      cat:'infra',    cx:95,  cy:92  }, // θ320°
+      { id:'python',   label:'Python',     cat:'backend',  cx:250, cy:75,  icon:ICO+'python/python-original.svg'          },
+      { id:'fastapi',  label:'FastAPI',    cat:'backend',  cx:382, cy:123, icon:ICO+'fastapi/fastapi-original.svg'        },
+      { id:'nodejs',   label:'Node.js',    cat:'backend',  cx:452, cy:244, icon:ICO+'nodejs/nodejs-original.svg'          },
+      { id:'pytorch',  label:'PyTorch',    cat:'backend',  cx:428, cy:383, icon:ICO+'pytorch/pytorch-original.svg'        },
+      { id:'postgres', label:'PostgreSQL', cat:'data',     cx:320, cy:473, icon:ICO+'postgresql/postgresql-original.svg'  },
+      { id:'mongo',    label:'MongoDB',    cat:'data',     cx:180, cy:473, icon:ICO+'mongodb/mongodb-original.svg'        },
+      { id:'docker',   label:'Docker',     cat:'infra',    cx:72,  cy:383, icon:ICO+'docker/docker-original.svg'          },
+      { id:'aws',      label:'AWS',        cat:'infra',    cx:48,  cy:244, icon:ICO+'amazonwebservices/amazonwebservices-original-wordmark.svg' },
+      { id:'git',      label:'Git',        cat:'infra',    cx:118, cy:123, icon:ICO+'git/git-original.svg'                },
       // ── Inner ring ──────────────────────────────────────
-      { id:'react',    label:'React',    cat:'frontend', cx:231, cy:134 }, // θ 30°
-      { id:'ts',       label:'TS',       cat:'frontend', cx:272, cy:205 }, // θ 90°
-      { id:'tailwind', label:'Tailwind', cat:'frontend', cx:231, cy:276 }, // θ150°
-      { id:'js',       label:'JS',       cat:'frontend', cx:149, cy:276 }, // θ210°
-      { id:'next',     label:'Next',     cat:'frontend', cx:108, cy:205 }, // θ270°
-      { id:'supa',     label:'Supa',     cat:'data',     cx:149, cy:134 }, // θ330°
+      { id:'react',    label:'React',      cat:'frontend', cx:308, cy:180, icon:ICO+'react/react-original.svg'            },
+      { id:'ts',       label:'TypeScript', cat:'frontend', cx:365, cy:280, icon:ICO+'typescript/typescript-original.svg'  },
+      { id:'tailwind', label:'Tailwind',   cat:'frontend', cx:308, cy:380, icon:ICO+'tailwindcss/tailwindcss-original.svg'},
+      { id:'js',       label:'JavaScript', cat:'frontend', cx:193, cy:380, icon:ICO+'javascript/javascript-original.svg'  },
+      { id:'next',     label:'Next.js',    cat:'frontend', cx:135, cy:280, icon:ICO+'nextjs/nextjs-original.svg'          },
+      { id:'supa',     label:'Supabase',   cat:'data',     cx:193, cy:180, icon:ICO+'supabase/supabase-original.svg'      },
       // ── Centre ──────────────────────────────────────────
-      { id:'k8s',      label:'K8s',      cat:'infra',    cx:190, cy:205 },
+      { id:'k8s',      label:'Kubernetes', cat:'infra',    cx:250, cy:280, icon:ICO+'kubernetes/kubernetes-plain.svg'     },
     ];
 
     const EDGES = [
@@ -386,26 +387,32 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
       // inner hexagon
       [9,10],[10,11],[11,12],[12,13],[13,14],[14,9],
       // outer → nearest inner (spokes)
-      [0,14],[0,9],  // Python → Supa, React
+      [0,14],[0,9],  // Python → Supabase, React
       [1,9],         // FastAPI → React
-      [2,10],        // Node → TS
+      [2,10],        // Node.js → TypeScript
       [3,11],        // PyTorch → Tailwind
-      [4,11],        // Postgres → Tailwind
-      [5,12],        // Mongo → JS
-      [6,13],        // Docker → Next
-      [7,13],        // AWS → Next
-      [8,14],        // Git → Supa
+      [4,11],        // PostgreSQL → Tailwind
+      [5,12],        // MongoDB → JavaScript
+      [6,13],        // Docker → Next.js
+      [7,13],        // AWS → Next.js
+      [8,14],        // Git → Supabase
       // centre triangle (K8s ↔ alternating inner nodes)
       [15,9],[15,11],[15,13],
     ];
 
-    const PH = 28, PR = 14;
-    const pw = n => Math.max(44, n.length * 7 + 24);
+    // Pill sizing — icon (IS×IS) + gap + text, centred inside pill
+    const IS = 13, GAP = 4, HPAD = 8, PH = 30, PR = 15;
+    const tw = lbl => lbl.length * 6.5;
+    const cw = n  => IS + GAP + tw(n.label);
+    const pw = n  => Math.max(50, Math.ceil(cw(n)) + 2 * HPAD);
+    const iX = n  => n.cx - cw(n) / 2;
+    const iY = n  => n.cy - IS / 2;
+    const tX = n  => n.cx + (IS + GAP) / 2;   // icon centre + gap → text centre
 
     return (
       <svg
-        viewBox="0 0 380 420"
-        style={{ display:'block', width:'100%', maxWidth:'380px', margin:'0 auto', overflow:'visible' }}
+        viewBox="0 0 500 540"
+        style={{ display:'block', width:'100%', maxWidth:'500px', margin:'0 auto', overflow:'visible' }}
         aria-label="Tech stack constellation"
       >
         {/* ── Edges ───────────────────────────────────────── */}
@@ -422,8 +429,8 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
         {/* ── Nodes ───────────────────────────────────────── */}
         <g>
           {NODES.map((n, i) => {
-            const c  = C[n.cat];
-            const w  = pw(n.label);
+            const c = C[n.cat];
+            const w = pw(n);
             return (
               <g key={n.id}
                 className="tech-cn"
@@ -434,12 +441,17 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
                   width={w} height={PH} rx={PR} ry={PR}
                   fill={c.bg} stroke={c.bd} strokeWidth="1"
                 />
+                <image
+                  href={n.icon}
+                  x={iX(n)} y={iY(n)}
+                  width={IS} height={IS}
+                />
                 <text
-                  x={n.cx} y={n.cy}
+                  x={tX(n)} y={n.cy}
                   textAnchor="middle" dominantBaseline="middle"
-                  fontSize="10.5" fontWeight="700"
+                  fontSize="10" fontWeight="700"
                   fontFamily="Kanit, sans-serif"
-                  letterSpacing="0.06em"
+                  letterSpacing="0.04em"
                   fill={c.tx}
                 >
                   {n.label}
