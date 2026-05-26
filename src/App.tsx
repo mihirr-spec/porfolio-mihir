@@ -308,14 +308,34 @@ function NavBar() {
     localStorage.setItem('theme', nowDark ? 'dark' : 'light');
   };
 
+  const smoothScrollTo = (targetY: number, duration = 1000) => {
+    const startY = window.scrollY;
+    const dist   = targetY - startY;
+    if (Math.abs(dist) < 2) return;
+    let startTime: number | null = null;
+    const ease = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
+    const step = (now: number) => {
+      if (!startTime) startTime = now;
+      const progress = Math.min((now - startTime) / duration, 1);
+      window.scrollTo(0, startY + dist * ease(progress));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
   const handleNavClick = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     setMenuOpen(false);
     if (id === 'contact') {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      smoothScrollTo(document.body.scrollHeight);
     } else {
       const targetId = id === 'projects' ? 'projects-cards' : id;
-      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const el = document.getElementById(targetId);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        smoothScrollTo(top);
+      }
     }
   };
 
