@@ -308,6 +308,17 @@ function NavBar() {
     localStorage.setItem('theme', nowDark ? 'dark' : 'light');
   };
 
+  const handleNavClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    if (id === 'contact') {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    } else {
+      const targetId = id === 'projects' ? 'projects-cards' : id;
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const ThemeBtn = () => (
     <button onClick={toggleTheme} aria-label="Toggle theme" style={{
       width: '38px', height: '38px', borderRadius: '50%', border: '1px solid var(--ta16)',
@@ -355,6 +366,7 @@ function NavBar() {
             const isActive = activeId === id;
             return (
               <a key={id} href={`#${id}`}
+                onClick={(e) => handleNavClick(e, id)}
                 className="font-medium uppercase tracking-wider text-[0.68rem] md:text-xs transition-all duration-200 relative"
                 style={{
                   color: 'var(--text)',
@@ -396,7 +408,7 @@ function NavBar() {
       {menuOpen && (
         <div className="mobile-menu">
           {NAV_LINKS.map(({ label, id }) => (
-            <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)}>{label}</a>
+            <a key={id} href={`#${id}`} onClick={(e) => handleNavClick(e, id)}>{label}</a>
           ))}
         </div>
       )}
@@ -1243,6 +1255,7 @@ function ProjectsSection() {
       <FadeIn as="h2" y={40} className="hero-heading font-black leading-none tracking-tight text-center mb-14 sm:mb-20 md:mb-24" style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}>
         Projects
       </FadeIn>
+      <div id="projects-cards" />
       <div className="max-w-7xl mx-auto">
         {PROJECTS.map((p, i) => (
           <ProjectCard
