@@ -172,16 +172,21 @@
     transform: translateX(-50%); z-index: 0;
   }
   .jt-prog {
-    position: absolute; left: 50%; top: 0; width: 2px; height: 0;
+    position: absolute; left: 50%; top: 0; width: 2px; height: 100%;
     background: linear-gradient(to bottom, transparent 0%, var(--ta60) 8%, var(--text) 100%);
-    transform: translateX(-50%); z-index: 1; pointer-events: none; will-change: height;
+    transform: translateX(-50%) scaleY(0);
+    transform-origin: top center;
+    z-index: 1; pointer-events: none; will-change: transform;
   }
-  .jt-prog.is-active::after {
-    content: ''; position: absolute; left: 50%; bottom: -5px;
-    transform: translateX(-50%);
+  /* Separate indicator dot — GPU translateY, no layout impact */
+  .jt-tip {
+    position: absolute; left: 50%; top: 0;
     width: 10px; height: 10px; border-radius: 50%;
     background: var(--text);
     box-shadow: 0 0 0 4px var(--jt-shadow), 0 0 10px var(--ta30);
+    transform: translateX(-50%) translateY(0);
+    z-index: 3; pointer-events: none;
+    opacity: 0; will-change: transform, opacity;
   }
   .jt-item {
     position: relative; display: grid;
@@ -251,8 +256,10 @@
   .jt-btn svg.arrow { width: 13px; height: 13px; transition: transform 0.2s; }
   .jt-btn:hover svg.arrow { transform: translateX(2px); }
   @media (max-width: 768px) {
-    .jt-line, .jt-prog { left: 12px; transform: none; }
-    .jt-dot { left: 12px; transform: translateX(-50%); }
+    .jt-line, .jt-prog, .jt-tip { left: 12px; }
+    .jt-prog { transform: scaleY(0); transform-origin: top left; }
+    .jt-tip  { transform: translateX(-50%) translateY(0); }
+    .jt-dot  { left: 12px; transform: translateX(-50%); }
     .jt-item { grid-template-columns: 1fr; gap: 0; padding-left: 40px; padding-top: 42px; margin-bottom: 28px; }
     .jt-item-left .jt-card, .jt-item-right .jt-card { grid-column: 1; }
     .jt-date-pill { position: static; display: inline-block; margin-bottom: 14px; }

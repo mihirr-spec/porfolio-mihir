@@ -715,36 +715,69 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
 
   function JourneySection() {
     const timelineRef = useRef(null);
-    const progRef = useRef(null);
-    const dotsRef = useRef([]);
+    const progRef     = useRef(null);
+    const tipRef      = useRef(null);  // GPU-composited indicator dot
+    const dotsRef     = useRef([]);
+    const dotOffsets  = useRef([]);    // cached: px from timeline top → dot centre
 
     useEffect(() => {
-      const tl = timelineRef.current;
+      const tl   = timelineRef.current;
       const prog = progRef.current;
-      if (!tl || !prog) return;
+      const tip  = tipRef.current;
+      if (!tl || !prog || !tip) return;
+
+      // Cache dot positions once at mount + on resize.
+      // Never called inside the scroll handler → zero per-frame getBoundingClientRect on dots.
+      const measureDots = () => {
+        const base = tl.getBoundingClientRect().top;
+        dotOffsets.current = dotsRef.current.map(dot => {
+          if (!dot) return 0;
+          const r = dot.getBoundingClientRect();
+          return (r.top - base) + r.height / 2;
+        });
+      };
+
+      const isMobile = () => window.innerWidth <= 768;
+
       let raf = null;
       function update() {
-        const rect = tl.getBoundingClientRect();
-        const anchor = window.innerHeight * 0.55;
-        const fill = Math.max(0, Math.min(rect.height, anchor - rect.top));
-        prog.style.height = fill + 'px';
-        prog.classList.toggle('is-active', fill > 4 && fill < rect.height - 4);
-        dotsRef.current.forEach(dot => {
+        // ── All reads first (prevents layout thrashing) ──────
+        const rect     = tl.getBoundingClientRect();
+        const anchor   = window.innerHeight * 0.55;
+        const progress = Math.max(0, Math.min(1, (anchor - rect.top) / rect.height));
+        const filled   = anchor - rect.top; // px from timeline top
+
+        // ── All writes after ─────────────────────────────────
+        // scaleY is GPU-composited — no layout reflow, buttery smooth
+        prog.style.transform = isMobile()
+          ? `scaleY(${progress.toFixed(5)})`
+          : `translateX(-50%) scaleY(${progress.toFixed(5)})`;
+
+        // Tip dot tracks the progress end via translateY (also GPU)
+        tip.style.transform = `translateX(-50%) translateY(${(progress * rect.height).toFixed(1)}px)`;
+        tip.style.opacity   = (progress > 0.015 && progress < 0.985) ? '1' : '0';
+
+        // Dot activation — uses cached offsets, zero getBoundingClientRect calls
+        dotsRef.current.forEach((dot, i) => {
           if (!dot) return;
-          const r = dot.getBoundingClientRect();
-          dot.classList.toggle('is-active', r.top + r.height / 2 < anchor);
+          dot.classList.toggle('is-active', (dotOffsets.current[i] ?? 0) < filled);
         });
       }
+
       function onScroll() {
         if (raf) return;
         raf = requestAnimationFrame(() => { update(); raf = null; });
       }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll);
+      const onResize = () => { measureDots(); update(); };
+
+      measureDots();
       update();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onResize, { passive: true });
       return () => {
         window.removeEventListener('scroll', onScroll);
-        window.removeEventListener('resize', onScroll);
+        window.removeEventListener('resize', onResize);
+        if (raf) cancelAnimationFrame(raf);
       };
     }, []);
 
@@ -764,6 +797,7 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
           <div ref={timelineRef} className="jt-timeline">
             <div className="jt-line" />
             <div ref={progRef} className="jt-prog" />
+            <span ref={tipRef} className="jt-tip" />
             {JT_DATA.map((item, i) => (
               <div key={i} className={"jt-item jt-item-" + item.side}>
                 <div ref={el => dotsRef.current[i] = el} className="jt-dot" />
