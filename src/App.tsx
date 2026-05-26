@@ -489,9 +489,6 @@ const STACK_ICON_MAP: Record<string, StackIconEntry> = {
   'Redis':        { src: _DI+'redis/redis-original.svg' },
   'Git':          { src: _DI+'git/git-original.svg' },
   'Three.js':     { src: _DI+'threejs/threejs-original.svg', invert: true },
-  'ChromaDB':     { src: _DI+'chromadb/chromadb-original.svg' },
-  'Groq':         { src: _DI+'groq/groq-original.svg' },
-  'XGBoost':      { src: _DI+'xgboost/xgboost-original.svg' },
 };
 
 function TechTile({ name, icon, invert = false }: TechItem) {

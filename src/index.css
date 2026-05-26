@@ -289,10 +289,10 @@
   /* Mobile nav overlay */
   .mobile-menu {
     position: fixed; inset: 0; z-index: 49;
-    background-color: #F7F7F7;
+    background-color: var(--bg);
     background-image:
-      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+      linear-gradient(var(--ta06) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ta06) 1px, transparent 1px);
     background-size: 28px 28px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 2rem;
