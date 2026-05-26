@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState, useLayoutEffect } from 'react';
-import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
+import { useRef, useEffect, useState } from 'react';
+import { motion as M, useScroll, useTransform } from 'framer-motion';
 
   /* ─── FadeIn ─────────────────────────────────────────────── */
   function FadeIn({ as = 'div', children, delay = 0, duration = 0.7, x = 0, y = 30, className = '', style = {}, ...rest }) {
@@ -336,7 +336,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
 
   /* ─── Mobile Tech Constellation — 2-D ring graph ────── */
   function MobileTechConstellation() {
-    const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
+    const [dark, setDark] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
     useEffect(() => {
       const el = document.documentElement;
       const obs = new MutationObserver(() => setDark(el.classList.contains('dark')));

@@ -1,13 +1,19 @@
+import { hydrateRoot, createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { inject } from '@vercel/analytics';
 import './index.css';
 import App from './App';
 
-inject();
+// Vercel analytics — client-side only
+if (typeof window !== 'undefined') {
+  import('@vercel/analytics').then(({ inject }) => inject());
+}
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+const container = document.getElementById('root');
+const app = <StrictMode><App /></StrictMode>;
+
+// If the page was pre-rendered (has child nodes), hydrate; otherwise fresh render
+if (container.hasChildNodes()) {
+  hydrateRoot(container, app);
+} else {
+  createRoot(container).render(app);
+}
