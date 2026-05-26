@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useLayoutEffect, useMemo } from 'react';
+import { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 
   /* ─── FadeIn ─────────────────────────────────────────────── */
@@ -334,215 +334,121 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
     );
   }
 
-  /* ─── Mobile Tech Prism — interactive octagonal prism ─── */
-  const PRISM_NODES = [
-    // Top ring (vertices 0-7)
-    { name: 'React',      icon: _DI+'react/react-original.svg' },
-    { name: 'TypeScript', icon: _DI+'typescript/typescript-original.svg' },
-    { name: 'Python',     icon: _DI+'python/python-original.svg' },
-    { name: 'Next.js',    icon: _DI+'nextjs/nextjs-original.svg' },
-    { name: 'Node.js',    icon: _DI+'nodejs/nodejs-original.svg' },
-    { name: 'FastAPI',    icon: _DI+'fastapi/fastapi-original.svg' },
-    { name: 'JavaScript', icon: _DI+'javascript/javascript-original.svg' },
-    { name: 'Tailwind',   icon: _DI+'tailwindcss/tailwindcss-original.svg' },
-    // Bottom ring (vertices 8-15)
-    { name: 'Docker',     icon: _DI+'docker/docker-original.svg' },
-    { name: 'PostgreSQL', icon: _DI+'postgresql/postgresql-original.svg' },
-    { name: 'MongoDB',    icon: _DI+'mongodb/mongodb-original.svg' },
-    { name: 'Supabase',   icon: _DI+'supabase/supabase-original.svg' },
-    { name: 'Git',        icon: _DI+'git/git-original.svg' },
-    { name: 'PyTorch',    icon: _DI+'pytorch/pytorch-original.svg' },
-    { name: 'AWS',        icon: _DI+'amazonwebservices/amazonwebservices-plain.svg' },
-    { name: 'Vercel',     icon: _DI+'vercel/vercel-original.svg' },
-  ];
-
-  function MobileTechPrism() {
-    const canvasRef = useRef(null);
-    const st = useRef({ ry: 0, rx: 0.28, velY: 0, dragging: false, lastX: 0, lastY: 0, images: {}, frame: null });
-
-    // Octagonal prism: 8 top + 8 bottom = 16 vertices
-    const verts = useMemo(() => {
-      const pts = [];
-      const R = 1.0, H = 1.1; // radius and half-height in world units
-      for (let i = 0; i < 8; i++) {
-        const a = Math.PI / 8 + (2 * Math.PI * i) / 8; // flat-face-forward offset
-        pts.push([R * Math.cos(a), -H, R * Math.sin(a)]); // top ring
-      }
-      for (let i = 0; i < 8; i++) {
-        const a = Math.PI / 8 + (2 * Math.PI * i) / 8;
-        pts.push([R * Math.cos(a),  H, R * Math.sin(a)]); // bottom ring
-      }
-      return pts;
-    }, []);
-
-    // All 24 edges: 8 top + 8 bottom + 8 vertical
-    const edges = useMemo(() => {
-      const e = [];
-      for (let i = 0; i < 8; i++) {
-        e.push([i, (i + 1) % 8]);           // top ring
-        e.push([8 + i, 8 + (i + 1) % 8]);  // bottom ring
-        e.push([i, 8 + i]);                  // vertical pillar
-      }
-      return e;
-    }, []);
-
-    // Pre-load icons
+  /* ─── Mobile Tech Constellation — 2-D ring graph ────── */
+  function MobileTechConstellation() {
+    const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
     useEffect(() => {
-      PRISM_NODES.forEach(n => {
-        if (!n.icon) return;
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = n.icon;
-        img.onload = () => { st.current.images[n.name] = img; };
-      });
+      const el = document.documentElement;
+      const obs = new MutationObserver(() => setDark(el.classList.contains('dark')));
+      obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+      return () => obs.disconnect();
     }, []);
 
-    // Draw loop
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const W = 340, H = 430;
-      canvas.width  = W * dpr;
-      canvas.height = H * dpr;
-      ctx.scale(dpr, dpr);
-      const cx = W / 2, cy = H / 2 - 10;
-      const SC = 105;   // world-to-pixel scale
-      const FL = 860;   // perspective focal length
-      let lastT = 0;
+    // Category colour sets — dark / light
+    const C = {
+      backend:  dark ? { bg:'#0e3830', bd:'#1a7060', tx:'#48d0b8' } : { bg:'#cef0eb', bd:'#18a890', tx:'#0a5848' },
+      frontend: dark ? { bg:'#0e1e44', bd:'#1a4498', tx:'#58a8f0' } : { bg:'#d4e8ff', bd:'#1a58d8', tx:'#0a3088' },
+      infra:    dark ? { bg:'#2c1205', bd:'#6a2e10', tx:'#d87040' } : { bg:'#ffe0d0', bd:'#c84818', tx:'#702408' },
+      data:     dark ? { bg:'#2c1c02', bd:'#6a4808', tx:'#d0a018' } : { bg:'#fff0c8', bd:'#c88008', tx:'#704000' },
+    };
+    const lnCol = dark ? 'rgba(180,210,230,0.14)' : 'rgba(10,30,80,0.09)';
 
-      // Project a 3D point → 2D screen point
-      const proj = (px, py, pz, rx, ry) => {
-        const x1 =  px * Math.cos(ry) + pz * Math.sin(ry);
-        const z1 = -px * Math.sin(ry) + pz * Math.cos(ry);
-        const y2 =  py * Math.cos(rx) - z1 * Math.sin(rx);
-        const z2 =  py * Math.sin(rx) + z1 * Math.cos(rx);
-        const d  = FL / (FL + z2 * SC);
-        return { sx: cx + x1 * SC * d, sy: cy + y2 * SC * d, z: z2, d };
-      };
+    // ── Layout ─────────────────────────────────────────────
+    // viewBox 0 0 380 420, centre cx=190 cy=205
+    // outer ring R=148 (9 nodes, 40° apart, starting from north/top)
+    // inner ring r=82  (6 nodes, 60° apart, +30° offset from north)
+    // centre node at (190, 205)
+    const NODES = [
+      // ── Outer ring ──────────────────────────────────────
+      { id:'python',   label:'Python',   cat:'backend',  cx:190, cy:57  }, // θ  0°
+      { id:'fastapi',  label:'FastAPI',  cat:'backend',  cx:285, cy:92  }, // θ 40°
+      { id:'nodejs',   label:'Node',     cat:'backend',  cx:336, cy:179 }, // θ 80°
+      { id:'pytorch',  label:'PyTorch',  cat:'backend',  cx:318, cy:279 }, // θ120°
+      { id:'postgres', label:'Postgres', cat:'data',     cx:241, cy:344 }, // θ160°
+      { id:'mongo',    label:'Mongo',    cat:'data',     cx:139, cy:344 }, // θ200°
+      { id:'docker',   label:'Docker',   cat:'infra',    cx:62,  cy:279 }, // θ240°
+      { id:'aws',      label:'AWS',      cat:'infra',    cx:44,  cy:179 }, // θ280°
+      { id:'git',      label:'Git',      cat:'infra',    cx:95,  cy:92  }, // θ320°
+      // ── Inner ring ──────────────────────────────────────
+      { id:'react',    label:'React',    cat:'frontend', cx:231, cy:134 }, // θ 30°
+      { id:'ts',       label:'TS',       cat:'frontend', cx:272, cy:205 }, // θ 90°
+      { id:'tailwind', label:'Tailwind', cat:'frontend', cx:231, cy:276 }, // θ150°
+      { id:'js',       label:'JS',       cat:'frontend', cx:149, cy:276 }, // θ210°
+      { id:'next',     label:'Next',     cat:'frontend', cx:108, cy:205 }, // θ270°
+      { id:'supa',     label:'Supa',     cat:'data',     cx:149, cy:134 }, // θ330°
+      // ── Centre ──────────────────────────────────────────
+      { id:'k8s',      label:'K8s',      cat:'infra',    cx:190, cy:205 },
+    ];
 
-      const draw = (ts) => {
-        st.current.frame = requestAnimationFrame(draw);
-        if (ts - lastT < 1000 / 40) return; // ~40 fps
-        lastT = ts;
+    const EDGES = [
+      // outer polygon
+      [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],
+      // inner hexagon
+      [9,10],[10,11],[11,12],[12,13],[13,14],[14,9],
+      // outer → nearest inner (spokes)
+      [0,14],[0,9],  // Python → Supa, React
+      [1,9],         // FastAPI → React
+      [2,10],        // Node → TS
+      [3,11],        // PyTorch → Tailwind
+      [4,11],        // Postgres → Tailwind
+      [5,12],        // Mongo → JS
+      [6,13],        // Docker → Next
+      [7,13],        // AWS → Next
+      [8,14],        // Git → Supa
+      // centre triangle (K8s ↔ alternating inner nodes)
+      [15,9],[15,11],[15,13],
+    ];
 
-        const s = st.current;
-        if (!s.dragging) { s.ry += 0.010; s.ry += s.velY; s.velY *= 0.90; }
-
-        // Project all 16 vertices
-        const p = verts.map(([x, y, z], i) => ({
-          ...proj(x, y, z, s.rx, s.ry),
-          node: PRISM_NODES[i],
-        }));
-
-        ctx.clearRect(0, 0, W, H);
-
-        // ── All 24 edges ────────────────────────────────────
-        edges.forEach(([i, j]) => {
-          const a = p[i], b = p[j];
-          const avgZ = (a.z + b.z) / 2;
-          // Back edges: faded but clearly visible; front edges: bold
-          const alpha = 0.18 + ((avgZ + 1) / 2) * 0.62;
-          const width = avgZ > 0 ? 1.6 : 1.0;
-          ctx.beginPath();
-          ctx.moveTo(a.sx, a.sy);
-          ctx.lineTo(b.sx, b.sy);
-          ctx.strokeStyle = `rgba(30,30,30,${alpha.toFixed(3)})`;
-          ctx.lineWidth = width;
-          ctx.stroke();
-        });
-
-        // ── Nodes back → front ──────────────────────────────
-        [...p].sort((a, b) => a.z - b.z).forEach(({ sx, sy, z, d, node }) => {
-          if (!node) return;
-          const r     = Math.round(12 + d * 10);   // 12–22 px
-          const alpha = Math.max(0.22, d * 0.85 + 0.15);
-
-          ctx.save();
-          ctx.globalAlpha = alpha;
-
-          // Shadow + circle
-          ctx.shadowBlur  = d * 10;
-          ctx.shadowColor = 'rgba(0,0,0,0.18)';
-          ctx.beginPath();
-          ctx.arc(sx, sy, r, 0, Math.PI * 2);
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fill();
-          ctx.shadowBlur = 0;
-          ctx.strokeStyle = `rgba(0,0,0,${(alpha * 0.12).toFixed(2)})`;
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
-
-          // Icon
-          const img = s.images[node.name];
-          if (img) {
-            const ir = r * 0.58;
-            ctx.drawImage(img, sx - ir, sy - ir, ir * 2, ir * 2);
-          }
-
-          // Name label
-          const fs = Math.max(7, Math.round(6 + d * 5));
-          ctx.font = `700 ${fs}px Kanit, sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillStyle = `rgba(10,10,10,${(alpha * 0.92).toFixed(2)})`;
-          ctx.fillText(node.name, sx, sy + r + 2);
-
-          ctx.restore();
-        });
-      };
-
-      st.current.frame = requestAnimationFrame(draw);
-
-      // ── Touch + mouse interaction ─────────────────────────
-      const xy = e => e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
-                                 : { x: e.clientX,            y: e.clientY };
-
-      const onStart = e => {
-        const { x, y } = xy(e);
-        Object.assign(st.current, { dragging: true, lastX: x, lastY: y, velY: 0 });
-      };
-      const onMove = e => {
-        if (!st.current.dragging) return;
-        if (e.cancelable) e.preventDefault();
-        const { x, y } = xy(e);
-        const dx = x - st.current.lastX;
-        const dy = y - st.current.lastY;
-        st.current.ry  += dx * 0.013;
-        st.current.rx   = Math.max(-0.55, Math.min(0.65, st.current.rx + dy * 0.009));
-        st.current.velY = dx * 0.013;
-        st.current.lastX = x;
-        st.current.lastY = y;
-      };
-      const onEnd = () => { st.current.dragging = false; };
-
-      canvas.addEventListener('touchstart',  onStart, { passive: true });
-      canvas.addEventListener('touchmove',   onMove,  { passive: false });
-      canvas.addEventListener('touchend',    onEnd);
-      canvas.addEventListener('mousedown',   onStart);
-      canvas.addEventListener('mousemove',   onMove);
-      canvas.addEventListener('mouseup',     onEnd);
-      canvas.addEventListener('mouseleave',  onEnd);
-
-      return () => {
-        cancelAnimationFrame(st.current.frame);
-        canvas.removeEventListener('touchstart',  onStart);
-        canvas.removeEventListener('touchmove',   onMove);
-        canvas.removeEventListener('touchend',    onEnd);
-        canvas.removeEventListener('mousedown',   onStart);
-        canvas.removeEventListener('mousemove',   onMove);
-        canvas.removeEventListener('mouseup',     onEnd);
-        canvas.removeEventListener('mouseleave',  onEnd);
-      };
-    }, [verts, edges]);
+    const PH = 28, PR = 14;
+    const pw = n => Math.max(44, n.length * 7 + 24);
 
     return (
-      <canvas ref={canvasRef}
-        style={{ width: '100%', height: 'auto', display: 'block',
-                 maxWidth: '340px', margin: '0 auto',
-                 cursor: 'grab', touchAction: 'none' }}
-      />
+      <svg
+        viewBox="0 0 380 420"
+        style={{ display:'block', width:'100%', maxWidth:'380px', margin:'0 auto', overflow:'visible' }}
+        aria-label="Tech stack constellation"
+      >
+        {/* ── Edges ───────────────────────────────────────── */}
+        <g>
+          {EDGES.map(([a, b], i) => (
+            <line key={i}
+              x1={NODES[a].cx} y1={NODES[a].cy}
+              x2={NODES[b].cx} y2={NODES[b].cy}
+              stroke={lnCol} strokeWidth="1"
+            />
+          ))}
+        </g>
+
+        {/* ── Nodes ───────────────────────────────────────── */}
+        <g>
+          {NODES.map((n, i) => {
+            const c  = C[n.cat];
+            const w  = pw(n.label);
+            return (
+              <g key={n.id}
+                className="tech-cn"
+                style={{ animationDelay:`${(i * 0.22).toFixed(2)}s`,
+                         animationDuration:`${3.6 + (i % 5) * 0.38}s` }}>
+                <rect
+                  x={n.cx - w / 2} y={n.cy - PH / 2}
+                  width={w} height={PH} rx={PR} ry={PR}
+                  fill={c.bg} stroke={c.bd} strokeWidth="1"
+                />
+                <text
+                  x={n.cx} y={n.cy}
+                  textAnchor="middle" dominantBaseline="middle"
+                  fontSize="10.5" fontWeight="700"
+                  fontFamily="Kanit, sans-serif"
+                  letterSpacing="0.06em"
+                  fill={c.tx}
+                >
+                  {n.label}
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      </svg>
     );
   }
 
@@ -578,7 +484,7 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
         {/* Mobile: floating node-network orb */}
         <div className="marquee-mobile-grid px-6 pb-4">
           <p className="font-black uppercase tracking-[0.2em] text-center mb-8" style={{ color: 'var(--text)', opacity: 0.3, fontSize: '0.6rem' }}>Tech Stack</p>
-          <MobileTechPrism />
+          <MobileTechConstellation />
         </div>
 
       </section>
@@ -863,9 +769,9 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
                 <div ref={el => dotsRef.current[i] = el} className="jt-dot" />
                 <span className="jt-date-pill">{item.date}</span>
                 {i === 0
-                  ? <JtCardCover item={item} imgSrc="/images/GDG.png" btnPos={{ bottom: '6%', left: '12%', right: '12%', height: '7%' }} />
+                  ? <JtCardCover item={item} imgSrc="/images/GDG.webp" btnPos={{ bottom: '6%', left: '12%', right: '12%', height: '7%' }} />
                   : i === 1
-                  ? <JtCardCover item={item} imgSrc="/images/DD.png" btnPos={{ bottom: '6.25%', left: '5%', right: '23%', height: '7%' }} />
+                  ? <JtCardCover item={item} imgSrc="/images/DD.webp" btnPos={{ bottom: '6.25%', left: '5%', right: '23%', height: '7%' }} />
                   : <JtCard item={item} />}
               </div>
             ))}
@@ -926,9 +832,9 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       blurb: "A multi-agent RAG knowledge base where admins ingest PDFs and URLs into a vector store and users query it via an AI chat with cited answers. Built with React, FastAPI, Supabase, ChromaDB, and Groq's Llama 3.",
       href: 'https://github.com/mihirr-spec/AskIT',
       stack: ['React','TypeScript','Python','FastAPI','Supabase','ChromaDB','Groq'],
-      img1: '/images/askit3.png',
-      img2: '/images/askit1.jpeg',
-      img3: '/images/askit2.png',
+      img1: '/images/askit3.webp',
+      img2: '/images/askit1.webp',
+      img3: '/images/askit2.webp',
       img3Fit: 'contain',
       img3Pos: 'top',
     },
@@ -939,9 +845,9 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       blurb: 'An AI-powered rural healthcare platform with a 42-disease XGBoost classifier, fine-tuned ResNet18 CNNs for eye and skin disease detection, and a 3-tier ANM / PHC / CHC dashboard with multilingual voice symptom capture.',
       href: 'https://github.com/mihirr-spec',
       stack: ['Python','PyTorch','XGBoost','FastAPI','React','Scikit-learn'],
-      img1: '/images/SEHAI1.jpeg',
-      img2: '/images/SEHAI3.png',
-      img3: '/images/Sehai2.png',
+      img1: '/images/SEHAI1.webp',
+      img2: '/images/SEHAI3.webp',
+      img3: '/images/Sehai2.webp',
     },
     {
       n: '03',
@@ -951,9 +857,9 @@ import { motion as M, useScroll, useTransform, useMotionValueEvent } from 'frame
       href: 'https://github.com/mihirr-spec/SRS-builder',
       stack: ['React','TypeScript','Vite','Vercel'],
       live: 'https://srs-builder.vercel.app/',
-      img1: '/images/SRS1.jpeg',
-      img2: '/images/SRS3.jpeg',
-      img3: '/images/SRS2.png',
+      img1: '/images/SRS1.webp',
+      img2: '/images/SRS3.webp',
+      img3: '/images/SRS2.webp',
       img3Zoom: 1.08
     }
   ];

@@ -155,6 +155,15 @@
     ::-webkit-scrollbar-track { background: var(--scroll-track); }
     ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
 
+/* ── Mobile Tech Constellation ─────────────────────── */
+@keyframes techCnPulse {
+  0%, 100% { opacity: 0.72; }
+  50%       { opacity: 1; }
+}
+.tech-cn {
+  animation: techCnPulse 4s ease-in-out infinite;
+}
+
 /* ── Journey / Timeline ─────────────────────────────── */
   .jt-timeline { position: relative; padding: 20px 0; }
   .jt-line {
