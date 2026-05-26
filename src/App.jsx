@@ -482,7 +482,7 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
     const triple = (arr) => [...arr, ...arr, ...arr];
     const dirs = [1, -1, 1];
     return (
-      <section ref={sectionRef} className="pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden" style={{ background: 'var(--bg)' }}>
+      <section ref={sectionRef} className="pt-6 sm:pt-32 md:pt-40 pb-10 overflow-hidden" style={{ background: 'var(--bg)' }}>
 
         {/* Desktop: scroll-driven marquee rows */}
         <div className="marquee-desktop flex flex-col gap-3">
@@ -495,7 +495,7 @@ import { motion as M, useScroll, useTransform } from 'framer-motion';
 
         {/* Mobile: floating node-network orb */}
         <div className="marquee-mobile-grid px-6 pb-4">
-          <p className="font-black uppercase tracking-[0.2em] text-center mb-8" style={{ color: 'var(--text)', opacity: 0.3, fontSize: '0.6rem' }}>Tech Stack</p>
+          <p className="font-black uppercase tracking-[0.18em] text-center mb-5" style={{ color: 'var(--text)', opacity: 0.55, fontSize: 'clamp(1.4rem, 5.5vw, 2.2rem)' }}>Tech Stack</p>
           <MobileTechConstellation />
         </div>
 
