@@ -57,9 +57,9 @@
       --scroll-track: #0C0C0C;
       --scroll-thumb: #222;
       --jt-shadow: #0C0C0C;
-      --services-bg: #FFFFFF;
+      --services-bg: #F4F4F4;
       --services-text: #0C0C0C;
-      --services-border: rgba(12,12,12,0.13);
+      --services-border: rgba(12,12,12,0.12);
       --card-empty: linear-gradient(135deg, #0f0f18 0%, #15151f 100%);
       --card-dots: rgba(215,226,234,0.06);
     }
@@ -85,6 +85,14 @@
       background-image:
         linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px) !important;
+    }
+
+    /* Services section always uses its own background (light panel) */
+    section#skills {
+      background-color: var(--services-bg) !important;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px) !important;
     }
 
     /* Smooth transitions for structural theme-aware elements */

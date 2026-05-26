@@ -258,10 +258,19 @@ function LiveProjectButton({ href = '#', className = '' }: LiveProjectButtonProp
 
 // ─── NavBar ───────────────────────────────────────────────────
 
+const NAV_LINKS = [
+  { label: 'About',    id: 'about' },
+  { label: 'Projects', id: 'projects' },
+  { label: 'Journey',  id: 'journey' },
+  { label: 'Services', id: 'skills' },   // section id is "skills"
+  { label: 'Contact',  id: 'contact' },
+] as const;
+
 function NavBar() {
-  const [scrolled, setScrolled] = useState<boolean>(false);
-  const [isDark, setIsDark] = useState<boolean>(false);
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [scrolled,  setScrolled]  = useState<boolean>(false);
+  const [isDark,    setIsDark]    = useState<boolean>(false);
+  const [menuOpen,  setMenuOpen]  = useState<boolean>(false);
+  const [activeId,  setActiveId]  = useState<string>('');
 
   useEffect(() => {
     const saved = localStorage.getItem('theme');
@@ -270,6 +279,22 @@ function NavBar() {
     const fn = () => setScrolled(window.scrollY > 48);
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  // Track active section by scroll position
+  useEffect(() => {
+    const onScroll = () => {
+      const anchor = window.scrollY + window.innerHeight * 0.4;
+      let current = '';
+      for (const { id } of NAV_LINKS) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= anchor) current = id;
+      }
+      setActiveId(current);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => {
@@ -326,11 +351,29 @@ function NavBar() {
 
         {/* Desktop nav */}
         <nav className="desktop-nav flex items-center gap-5 md:gap-9">
-          {['About', 'Projects', 'Journey', 'Services', 'Contact'].map(l => (
-            <a key={l} href={`#${l.toLowerCase()}`}
-              className="font-medium uppercase tracking-wider text-[0.68rem] md:text-xs hover:opacity-55 transition-opacity duration-200"
-              style={{ color: 'var(--text)' }}>{l}</a>
-          ))}
+          {NAV_LINKS.map(({ label, id }) => {
+            const isActive = activeId === id;
+            return (
+              <a key={id} href={`#${id}`}
+                className="font-medium uppercase tracking-wider text-[0.68rem] md:text-xs transition-all duration-200 relative"
+                style={{
+                  color: 'var(--text)',
+                  opacity: isActive ? 1 : 0.45,
+                  fontWeight: isActive ? 700 : 500,
+                }}
+              >
+                {label}
+                {isActive && (
+                  <span style={{
+                    position: 'absolute', bottom: '-5px', left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '4px', height: '4px', borderRadius: '50%',
+                    background: 'var(--text)', display: 'block'
+                  }} />
+                )}
+              </a>
+            );
+          })}
           <ThemeBtn />
         </nav>
 
@@ -352,8 +395,8 @@ function NavBar() {
       {/* Mobile full-screen menu */}
       {menuOpen && (
         <div className="mobile-menu">
-          {['About', 'Projects', 'Journey', 'Services', 'Contact'].map(l => (
-            <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setMenuOpen(false)}>{l}</a>
+          {NAV_LINKS.map(({ label, id }) => (
+            <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)}>{label}</a>
           ))}
         </div>
       )}
