@@ -227,7 +227,7 @@ function AnimatedText({ text, className = '', style = {} }: AnimatedTextProps) {
 function ContactButton({ className = '' }: ContactButtonProps) {
   return (
     <a
-      href="https://mail.google.com/mail/?view=cm&fs=1&to=sanghvimihir96@gmail.com"
+      href="https://mail.google.com/mail/?view=cm&fs=1&to=sanghvimihir04@gmail.com"
       target="_blank"
       rel="noopener noreferrer"
       className={`contact-btn inline-block rounded-full text-white font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 text-xs sm:text-sm md:text-base ${className}`}
@@ -1296,10 +1296,10 @@ function ProjectsSection() {
 
 function Footer() {
   return (
-    <footer id="contact" className="overflow-hidden relative z-10" style={{ background: 'var(--bg)' }}>
+    <footer id="contact" className="overflow-hidden relative z-10 flex flex-col min-h-svh md:min-h-0" style={{ background: 'var(--bg)' }}>
       <div className="mx-6 md:mx-10" style={{ height: '1px', background: 'var(--ta09)' }} />
 
-      <div className="px-6 md:px-10 pt-20 sm:pt-28 md:pt-40 pb-14 sm:pb-20">
+      <div className="flex-1 flex flex-col justify-center px-6 md:px-10 py-16 md:pt-40 md:pb-20">
         <div className="max-w-[1440px] mx-auto text-center">
           <FadeIn y={70} duration={0.95}>
             <div
@@ -1316,13 +1316,13 @@ function Footer() {
                 Drop me a line
               </span>
               <a
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=sanghvimihir96@gmail.com"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=sanghvimihir04@gmail.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium uppercase tracking-wide hover:opacity-55 transition-opacity duration-200"
                 style={{ color: 'var(--text)', fontSize: 'clamp(0.88rem, 1.6vw, 1.3rem)' }}
               >
-                sanghvimihir96@gmail.com
+                sanghvimihir04@gmail.com
               </a>
             </div>
 
