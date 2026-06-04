@@ -1146,39 +1146,39 @@ function ServicesSection() {
       // 1. Tiles slide up staggered
       tl.to(tiles, {
         y: 0, opacity: 1,
-        duration: 0.55,
+        duration: 0.28,
         ease: 'power3.out',
-        stagger: 0.06,
+        stagger: 0.03,
       });
 
-      // 2. After 1.8s pause: tiles fly up, heading slides in
+      // 2. After 0.9s pause: tiles fly up, heading slides in
       tl.to(tiles, {
         y: -220, opacity: 0,
-        duration: 0.45,
+        duration: 0.22,
         ease: 'power3.in',
-      }, '+=1.8');
+      }, '+=0.6');
 
       tl.to(heading, {
         y: 0, opacity: 1,
-        duration: 0.6,
+        duration: 0.3,
         ease: 'power3.out',
-      }, '<+0.1');
+      }, '<+0.05');
 
       // 3. Cards flip in (icon cover face)
       tl.to(cardInners, {
         rotateY: 0, opacity: 1,
-        duration: 0.65,
+        duration: 0.32,
         ease: 'power3.out',
-        stagger: 0.07,
-      }, '<+0.15');
+        stagger: 0.035,
+      }, '<+0.08');
 
-      // 4. 2s on icon cover, then flip to info
+      // 4. 1s on icon cover, then flip to info
       tl.to(cardInners, {
         rotateY: 180,
-        duration: 0.7,
+        duration: 0.35,
         ease: 'power2.inOut',
         stagger: 0,
-      }, '+=2');
+      }, '+=0.7');
 
       return tl;
     };
@@ -1194,13 +1194,13 @@ function ServicesSection() {
           tlRef.current = buildTimeline();
           tlRef.current.play();
         } else {
-          // Reset after 3s delay
+          // Reset after 1.5s delay
           const tl = tlRef.current;
           setTimeout(() => {
             tl?.kill();
-            gsap.to(cardInners, { rotateY: -90, opacity: 0, duration: 0.4, ease: 'power2.in' });
-            gsap.to(heading,    { y: 50, opacity: 0, duration: 0.35, ease: 'power2.in' });
-          }, 3000);
+            gsap.to(cardInners, { rotateY: -90, opacity: 0, duration: 0.2, ease: 'power2.in' });
+            gsap.to(heading,    { y: 50, opacity: 0, duration: 0.18, ease: 'power2.in' });
+          }, 1500);
         }
       },
       { threshold: 0.25 }
@@ -1542,19 +1542,61 @@ function ProjectsSection() {
   );
 }
 
+// ─── Social link with branded glow ───────────────────────────
+
+function SocialLink({ label, href, icon, glow }: { label: string; href: string; icon: React.ReactNode; glow: string }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-[0.16em]"
+      style={{
+        color: 'var(--text)',
+        fontSize: 'clamp(0.65rem, 0.9vw, 0.8rem)',
+        padding: '6px 12px',
+        borderRadius: 8,
+        transition: 'box-shadow 0.25s ease, opacity 0.25s ease',
+        boxShadow: hovered ? `0 0 14px 3px ${glow}, 0 0 0 1px ${glow}` : 'none',
+        opacity: hovered ? 1 : 0.7,
+      }}
+    >
+      {icon}
+      {label}
+    </a>
+  );
+}
+
+// ─── Visitor counter ──────────────────────────────────────────
+
+function useVisitorCount() {
+  const [count, setCount] = useState<number>(253);
+  useEffect(() => {
+    fetch('https://api.counterapi.dev/v1/porfolio-mihir/visits/up')
+      .then(r => r.json())
+      .then(d => { if (typeof d.count === 'number') setCount(d.count); })
+      .catch(() => {});
+  }, []);
+  return count;
+}
+
 // ─── Footer ───────────────────────────────────────────────────
 
 function Footer() {
+  const visitorCount = useVisitorCount();
   return (
-    <footer id="contact" className="overflow-hidden relative z-10 flex flex-col min-h-svh md:min-h-0" style={{ background: 'var(--bg)' }}>
+    <footer id="contact" className="relative z-10 flex flex-col" style={{ background: 'var(--bg)', minHeight: '100svh' }}>
       <div className="mx-6 md:mx-10" style={{ height: '1px', background: 'var(--ta09)' }} />
 
-      <div className="flex-1 flex flex-col justify-center px-6 md:px-10 py-16 md:pt-40 md:pb-20">
+      <div className="flex-1 flex flex-col justify-center px-6 md:px-10 py-16">
         <div className="max-w-[1440px] mx-auto text-center">
           <FadeIn y={70} duration={0.95}>
             <div
               className="hero-heading font-black leading-[0.87] tracking-tight select-none"
-              style={{ fontSize: 'clamp(5.5rem, 20vw, 250px)' }}
+              style={{ fontSize: 'clamp(5rem, 17vw, 200px)' }}
             >
               Let&apos;s<br />Talk
             </div>
@@ -1577,28 +1619,32 @@ function Footer() {
             </div>
 
             <div className="footer-socials flex items-center gap-7 sm:gap-9">
-              {[
-                { label: 'GitHub',   href: 'https://github.com/mihirr-spec',
+              {([
+                { label: 'GitHub',   href: 'https://github.com/mihirr-spec',       glow: 'rgba(0,0,0,0.55)',
                   icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> },
-                { label: 'LinkedIn', href: 'https://www.linkedin.com/in/mihir-sanghvi-a931b7329/',
+                { label: 'LinkedIn', href: 'https://www.linkedin.com/in/mihir-sanghvi-a931b7329/', glow: 'rgba(10,102,194,0.6)',
                   icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg> },
-                { label: 'Twitter',  href: 'https://x.com/mihirsanghvi04',
+                { label: 'Twitter',  href: 'https://x.com/mihirsanghvi04',         glow: 'rgba(0,0,0,0.55)',
                   icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.258 5.639 5.906-5.639zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> },
-              ].map(link => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-[0.16em] hover:opacity-55 transition-opacity duration-200"
-                  style={{ color: 'var(--text)', fontSize: 'clamp(0.65rem, 0.9vw, 0.8rem)' }}
-                >
-                  {link.icon}
-                  {link.label}
-                </a>
+              ] as { label: string; href: string; glow: string; icon: React.ReactNode }[]).map(link => (
+                <SocialLink key={link.label} {...link} />
               ))}
             </div>
           </FadeIn>
+        </div>
+      </div>
+
+      <div className="flex justify-center pb-8">
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          border: '1px solid var(--text)',
+          borderRadius: 999,
+          padding: '8px 20px',
+        }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
+          <span className="font-medium uppercase tracking-[0.18em]" style={{ color: 'var(--text)', fontSize: '0.72rem' }}>
+            {visitorCount.toLocaleString()} visitors
+          </span>
         </div>
       </div>
 
