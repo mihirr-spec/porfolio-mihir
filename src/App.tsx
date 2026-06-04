@@ -1,5 +1,8 @@
 import { useRef, useEffect, useState, type ReactNode, type CSSProperties } from 'react';
 import { motion as M, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+gsap.registerPlugin(ScrollTrigger);
 
 // ─── Shared types ────────────────────────────────────────────
 
@@ -681,30 +684,42 @@ function MobileTechConstellation() {
 
 function MarqueeSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [offset, setOffset] = useState<number>(0);
+  const rowRefs    = useRef<(HTMLDivElement | null)[]>([]);
+  const dirs: number[] = [1, -1, 1];
 
   useEffect(() => {
-    const onScroll = () => {
-      const el = sectionRef.current;
-      if (!el) return;
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      setOffset((window.scrollY - top + window.innerHeight) * 0.3);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
+    const section = sectionRef.current;
+    if (!section) return;
+    const triggers: ScrollTrigger[] = [];
+
+    rowRefs.current.forEach((row, ri) => {
+      if (!row) return;
+      const dir   = dirs[ri];
+      const dist  = window.innerWidth * 0.55 * dir;
+      gsap.set(row, { x: -dist / 2 });
+      const st = ScrollTrigger.create({
+        trigger: section,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1.2,
+        onUpdate: (self) => {
+          gsap.set(row, { x: (self.progress - 0.5) * dist });
+        },
+      });
+      triggers.push(st);
+    });
+
+    return () => triggers.forEach(t => t.kill());
   }, []);
 
   const triple = (arr: TechItem[]) => [...arr, ...arr, ...arr];
-  const dirs: number[] = [1, -1, 1];
 
   return (
     <section ref={sectionRef} className="pt-6 sm:pt-32 md:pt-40 pb-10 overflow-hidden" style={{ background: 'var(--bg)' }}>
       {/* Desktop: scroll-driven marquee rows */}
       <div className="marquee-desktop flex flex-col gap-3">
         {TECH_ROWS.map((row, ri) => (
-          <div key={ri} className="flex gap-3" style={{ transform: 'translateX(' + String(dirs[ri] * (offset - 200)) + 'px)', willChange: 'transform' }}>
+          <div key={ri} ref={el => { rowRefs.current[ri] = el; }} className="flex gap-3" style={{ willChange: 'transform' }}>
             {triple(row).map((tech, i) => <TechTile key={'r' + ri + '-' + i} {...tech} />)}
           </div>
         ))}
@@ -960,6 +975,9 @@ function JourneySection() {
     const tip  = tipRef.current;
     if (!tl || !prog || !tip) return;
 
+    const isMobile = () => window.innerWidth <= 768;
+
+    // Measure dot offsets relative to timeline top
     const measureDots = () => {
       const base = tl.getBoundingClientRect().top;
       dotOffsets.current = dotsRef.current.map(dot => {
@@ -968,44 +986,37 @@ function JourneySection() {
         return (r.top - base) + r.height / 2;
       });
     };
-
-    const isMobile = () => window.innerWidth <= 768;
-
-    let raf: number | null = null;
-    function update() {
-      if (!tl || !prog || !tip) return; // guard for closure type-narrowing
-      const rect     = tl.getBoundingClientRect();
-      const anchor   = window.innerHeight * 0.55;
-      const progress = Math.max(0, Math.min(1, (anchor - rect.top) / rect.height));
-      const filled   = anchor - rect.top;
-
-      prog.style.transform = isMobile()
-        ? `scaleY(${progress.toFixed(5)})`
-        : `translateX(-50%) scaleY(${progress.toFixed(5)})`;
-
-      tip.style.transform = `translateX(-50%) translateY(${(progress * rect.height).toFixed(1)}px)`;
-      tip.style.opacity   = (progress > 0.015 && progress < 0.985) ? '1' : '0';
-
-      dotsRef.current.forEach((dot, i) => {
-        if (!dot) return;
-        dot.classList.toggle('is-active', (dotOffsets.current[i] ?? 0) < filled);
-      });
-    }
-
-    function onScroll() {
-      if (raf) return;
-      raf = requestAnimationFrame(() => { update(); raf = null; });
-    }
-    const onResize = () => { measureDots(); update(); };
-
     measureDots();
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
+
+    const st = ScrollTrigger.create({
+      trigger: tl,
+      start: 'top 55%',
+      end: 'bottom 55%',
+      scrub: 0,
+      onUpdate(self) {
+        const p      = self.progress;
+        const filled = p * tl.getBoundingClientRect().height;
+
+        prog.style.transform = isMobile()
+          ? `scaleY(${p})`
+          : `translateX(-50%) scaleY(${p})`;
+
+        tip.style.transform = `translateX(-50%) translateY(${filled.toFixed(1)}px)`;
+        tip.style.opacity   = (p > 0.015 && p < 0.985) ? '1' : '0';
+
+        dotsRef.current.forEach((dot, i) => {
+          if (!dot) return;
+          dot.classList.toggle('is-active', (dotOffsets.current[i] ?? 0) < filled);
+        });
+      },
+    });
+
+    const onResize = () => { measureDots(); ScrollTrigger.refresh(); };
     window.addEventListener('resize', onResize, { passive: true });
+
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      st.kill();
       window.removeEventListener('resize', onResize);
-      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -1054,30 +1065,269 @@ const SERVICES: ServiceItem[] = [
 ];
 
 function ServicesSection() {
+  const sectionRef  = useRef<HTMLDivElement>(null);
+  const headingRef  = useRef<HTMLHeadingElement>(null);
+  const tilesRowRef = useRef<HTMLDivElement>(null);
+  const cardsRowRef = useRef<HTMLDivElement>(null);
+  const tlRef       = useRef<gsap.core.Timeline | null>(null);
+
+  const ACCENTS = [
+    { tl: '#1a1a1a', tr: '#FDA4AF', bl: '#FDE68A', br: '#7DD3FC', stroke: '#7DD3FC' },
+    { tl: '#FDE68A', tr: '#1a1a1a', bl: '#7DD3FC', br: '#FDA4AF', stroke: '#FDA4AF' },
+    { tl: '#7DD3FC', tr: '#FDE68A', bl: '#FDA4AF', br: '#1a1a1a', stroke: '#FDE68A' },
+    { tl: '#FDA4AF', tr: '#7DD3FC', bl: '#1a1a1a', br: '#FDE68A', stroke: '#7DD3FC' },
+    { tl: '#FDE68A', tr: '#FDA4AF', bl: '#1a1a1a', br: '#7DD3FC', stroke: '#FDA4AF' },
+  ];
+
+  const ICONS = ACCENTS.map((a) => [
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="28,20 12,40 28,60" stroke={a.stroke} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <polyline points="52,20 68,40 52,60" stroke={a.stroke} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <line x1="44" y1="16" x2="36" y2="64" stroke={a.stroke} strokeWidth="3" strokeLinecap="round" opacity="0.6"/>
+      <rect x="18" y="64" width="44" height="8" rx="3" stroke={a.stroke} strokeWidth="2.5" opacity="0.4"/>
+    </svg>,
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="8" stroke={a.stroke} strokeWidth="3"/>
+      <circle cx="16" cy="24" r="5" stroke={a.stroke} strokeWidth="2.5"/>
+      <circle cx="64" cy="24" r="5" stroke={a.stroke} strokeWidth="2.5"/>
+      <circle cx="16" cy="56" r="5" stroke={a.stroke} strokeWidth="2.5"/>
+      <circle cx="64" cy="56" r="5" stroke={a.stroke} strokeWidth="2.5"/>
+      <line x1="32" y1="36" x2="21" y2="27" stroke={a.stroke} strokeWidth="2" opacity="0.7"/>
+      <line x1="48" y1="36" x2="59" y2="27" stroke={a.stroke} strokeWidth="2" opacity="0.7"/>
+      <line x1="32" y1="44" x2="21" y2="53" stroke={a.stroke} strokeWidth="2" opacity="0.7"/>
+      <line x1="48" y1="44" x2="59" y2="53" stroke={a.stroke} strokeWidth="2" opacity="0.7"/>
+    </svg>,
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="16" width="60" height="38" rx="5" stroke={a.stroke} strokeWidth="3"/>
+      <line x1="10" y1="30" x2="70" y2="30" stroke={a.stroke} strokeWidth="2.5" opacity="0.6"/>
+      <line x1="28" y1="30" x2="28" y2="54" stroke={a.stroke} strokeWidth="2.5" opacity="0.6"/>
+      <line x1="40" y1="54" x2="40" y2="64" stroke={a.stroke} strokeWidth="2.5"/>
+      <line x1="28" y1="64" x2="52" y2="64" stroke={a.stroke} strokeWidth="3" strokeLinecap="round"/>
+      <rect x="32" y="35" width="30" height="5" rx="2" stroke={a.stroke} strokeWidth="2" opacity="0.5"/>
+    </svg>,
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="14" width="52" height="16" rx="5" stroke={a.stroke} strokeWidth="3"/>
+      <rect x="14" y="36" width="52" height="16" rx="5" stroke={a.stroke} strokeWidth="3"/>
+      <rect x="14" y="58" width="52" height="10" rx="5" stroke={a.stroke} strokeWidth="3" opacity="0.5"/>
+      <circle cx="56" cy="22" r="3" stroke={a.stroke} strokeWidth="2.5"/>
+      <circle cx="56" cy="44" r="3" stroke={a.stroke} strokeWidth="2.5"/>
+      <line x1="22" y1="22" x2="44" y2="22" stroke={a.stroke} strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
+      <line x1="22" y1="44" x2="44" y2="44" stroke={a.stroke} strokeWidth="2" opacity="0.5" strokeLinecap="round"/>
+    </svg>,
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="10" width="38" height="50" rx="5" stroke={a.stroke} strokeWidth="3"/>
+      <rect x="18" y="14" width="38" height="50" rx="5" stroke={a.stroke} strokeWidth="2.5" opacity="0.35"/>
+      <line x1="22" y1="26" x2="44" y2="26" stroke={a.stroke} strokeWidth="2.5" strokeLinecap="round" opacity="0.7"/>
+      <line x1="22" y1="34" x2="44" y2="34" stroke={a.stroke} strokeWidth="2.5" strokeLinecap="round" opacity="0.7"/>
+      <line x1="22" y1="42" x2="36" y2="42" stroke={a.stroke} strokeWidth="2.5" strokeLinecap="round" opacity="0.5"/>
+      <path d="M52 54 L62 44 L68 50 L58 60 Z" stroke={a.stroke} strokeWidth="2.5" strokeLinejoin="round"/>
+      <line x1="62" y1="44" x2="66" y2="40" stroke={a.stroke} strokeWidth="2.5" strokeLinecap="round"/>
+    </svg>,
+  ]);
+
+  useEffect(() => {
+    const section   = sectionRef.current;
+    const heading   = headingRef.current;
+    const tilesRow  = tilesRowRef.current;
+    const cardsRow  = cardsRowRef.current;
+    if (!section || !heading || !tilesRow || !cardsRow) return;
+
+    const tiles     = gsap.utils.toArray<HTMLElement>('.svc-tile', tilesRow);
+    const cardInners = gsap.utils.toArray<HTMLElement>('.svc-card-inner', cardsRow);
+
+    // Set initial states
+    gsap.set(tiles,      { y: 180, opacity: 0 });
+    gsap.set(heading,    { y: 50,  opacity: 0 });
+    gsap.set(cardInners, { rotateY: -90, opacity: 0 });
+
+    const buildTimeline = () => {
+      const tl = gsap.timeline({ paused: true });
+
+      // 1. Tiles slide up staggered
+      tl.to(tiles, {
+        y: 0, opacity: 1,
+        duration: 0.55,
+        ease: 'power3.out',
+        stagger: 0.06,
+      });
+
+      // 2. After 1.8s pause: tiles fly up, heading slides in
+      tl.to(tiles, {
+        y: -220, opacity: 0,
+        duration: 0.45,
+        ease: 'power3.in',
+      }, '+=1.8');
+
+      tl.to(heading, {
+        y: 0, opacity: 1,
+        duration: 0.6,
+        ease: 'power3.out',
+      }, '<+0.1');
+
+      // 3. Cards flip in (icon cover face)
+      tl.to(cardInners, {
+        rotateY: 0, opacity: 1,
+        duration: 0.65,
+        ease: 'power3.out',
+        stagger: 0.07,
+      }, '<+0.15');
+
+      // 4. 2s on icon cover, then flip to info
+      tl.to(cardInners, {
+        rotateY: 180,
+        duration: 0.7,
+        ease: 'power2.inOut',
+        stagger: 0,
+      }, '+=2');
+
+      return tl;
+    };
+
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          tlRef.current?.kill();
+          // Reset all to initial
+          gsap.set(tiles,      { y: 180, opacity: 0 });
+          gsap.set(heading,    { y: 50,  opacity: 0 });
+          gsap.set(cardInners, { rotateY: -90, opacity: 0 });
+          tlRef.current = buildTimeline();
+          tlRef.current.play();
+        } else {
+          // Reset after 3s delay
+          const tl = tlRef.current;
+          setTimeout(() => {
+            tl?.kill();
+            gsap.to(cardInners, { rotateY: -90, opacity: 0, duration: 0.4, ease: 'power2.in' });
+            gsap.to(heading,    { y: 50, opacity: 0, duration: 0.35, ease: 'power2.in' });
+          }, 3000);
+        }
+      },
+      { threshold: 0.25 }
+    );
+    obs.observe(section);
+
+    return () => { obs.disconnect(); tlRef.current?.kill(); };
+  }, []);
+
+  const LETTERS = ['S','E','R','V','I','C','E','S'];
+
   return (
-    <section id="skills" className="rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] px-5 sm:px-8 md:px-10 py-20 sm:py-24 md:py-32 relative z-0" style={{ background: 'var(--services-bg)' }}>
-      <FadeIn as="h2" y={40} className="font-black text-center mb-16 sm:mb-20 md:mb-28" style={{ color: 'var(--services-text)', fontSize: 'clamp(3rem, 12vw, 160px)', lineHeight: 1 }}>
-        Services
-      </FadeIn>
-      <div className="max-w-5xl mx-auto">
-        {SERVICES.map((s, i) => (
-          <FadeIn
-            key={s.n}
-            delay={i * 0.08}
-            y={28}
-            className="services-row flex items-start gap-6 sm:gap-8 md:gap-12 py-8 sm:py-10 md:py-12"
-            style={{
-              borderTop: '1px solid var(--services-border)',
-              borderBottom: i === SERVICES.length - 1 ? '1px solid var(--services-border)' : 'none'
-            }}
+    <section id="skills" className="rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] px-5 sm:px-8 md:px-10 relative z-0" style={{ background: 'var(--services-bg)' }}>
+
+      {/* ── DESKTOP ── */}
+      <div ref={sectionRef} className="hidden lg:block relative" style={{ minHeight: 680 }}>
+
+        {/* Heading */}
+        <div className="absolute top-16 left-0 right-0 flex justify-center pointer-events-none">
+          <h2
+            ref={headingRef}
+            className="font-black text-center"
+            style={{ color: 'var(--services-text)', fontSize: 'clamp(3rem, 12vw, 150px)', lineHeight: 1, opacity: 0 }}
           >
-            <div className="services-num font-black leading-none shrink-0" style={{ color: 'var(--services-text)', fontSize: 'clamp(2.8rem, 9vw, 130px)' }}>{s.n}</div>
-            <div className="flex flex-col gap-3 sm:gap-4 pt-1 sm:pt-3">
-              <div className="font-medium uppercase leading-tight" style={{ color: 'var(--services-text)', fontSize: 'clamp(1rem, 2.1vw, 2rem)' }}>{s.name}</div>
-              <div className="font-light leading-relaxed max-w-2xl" style={{ color: 'var(--services-text)', opacity: 0.55, fontSize: 'clamp(0.82rem, 1.5vw, 1.2rem)' }}>{s.desc}</div>
+            Services
+          </h2>
+        </div>
+
+        {/* S·E·R·V·I·C·E·S tiles */}
+        <div ref={tilesRowRef} className="absolute left-0 right-0 flex justify-center gap-2" style={{ top: '50%', transform: 'translateY(-50%)' }}>
+          {LETTERS.map((letter, i) => (
+            <div
+              key={i}
+              className="svc-tile"
+              style={{
+                width: 72, height: 92,
+                background: 'var(--services-text)',
+                borderRadius: 12,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'Kanit, sans-serif', fontWeight: 900, fontSize: 54,
+                color: 'var(--services-bg)',
+                userSelect: 'none', flexShrink: 0,
+              }}
+            >
+              {letter}
             </div>
-          </FadeIn>
-        ))}
+          ))}
+        </div>
+
+        {/* Service cards */}
+        <div ref={cardsRowRef} className="absolute bottom-12 left-0 right-0 flex justify-center gap-4" style={{ perspective: '1200px' }}>
+          {SERVICES.map((s, i) => {
+            const a = ACCENTS[i];
+            const icon = ICONS[i][i];
+            return (
+              <div key={s.n} style={{ width: 196, height: 300, perspective: '1200px', flexShrink: 0 }}>
+                <div
+                  className="svc-card-inner"
+                  style={{ width: '100%', height: '100%', transformStyle: 'preserve-3d', position: 'relative' }}
+                >
+                  {/* FRONT: icon cover */}
+                  <div style={{
+                    position: 'absolute', inset: 0, borderRadius: 18, overflow: 'hidden',
+                    backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' as 'hidden',
+                    background: '#0D0D14',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16,
+                  }}>
+                    <div style={{ position: 'absolute', top: -24, left: -24, width: 64, height: 64, borderRadius: '50%', background: a.tl, opacity: 0.5, filter: 'blur(16px)' }} />
+                    <div style={{ position: 'absolute', top: -24, right: -24, width: 56, height: 56, borderRadius: '50%', background: a.tr, opacity: 0.45, filter: 'blur(14px)' }} />
+                    <div style={{ position: 'absolute', bottom: -24, left: -24, width: 56, height: 56, borderRadius: '50%', background: a.bl, opacity: 0.45, filter: 'blur(14px)' }} />
+                    <div style={{ position: 'absolute', bottom: -24, right: -24, width: 64, height: 64, borderRadius: '50%', background: a.br, opacity: 0.5, filter: 'blur(16px)' }} />
+                    <div style={{ width: 100, height: 100, position: 'relative', zIndex: 1 }}>{icon}</div>
+                    <div style={{ fontFamily: 'Kanit, sans-serif', fontWeight: 700, fontSize: 11, color: a.stroke, textTransform: 'uppercase', letterSpacing: '0.1em', position: 'relative', zIndex: 1 }}>{s.name}</div>
+                  </div>
+
+                  {/* BACK: service info */}
+                  <div style={{
+                    position: 'absolute', inset: 0, borderRadius: 18, overflow: 'hidden',
+                    backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' as 'hidden',
+                    transform: 'rotateY(180deg)',
+                    background: '#ffffff',
+                    padding: '22px 18px',
+                    display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                  }}>
+                    <div style={{ position: 'absolute', top: -28, left: -28, width: 72, height: 72, borderRadius: '50%', background: a.tl, opacity: 0.85, filter: 'blur(2px)' }} />
+                    <div style={{ position: 'absolute', top: -28, right: -28, width: 60, height: 60, borderRadius: '50%', background: a.tr, opacity: 0.75, filter: 'blur(2px)' }} />
+                    <div style={{ position: 'absolute', bottom: -28, left: -28, width: 60, height: 60, borderRadius: '50%', background: a.bl, opacity: 0.75, filter: 'blur(2px)' }} />
+                    <div style={{ position: 'absolute', bottom: -28, right: -28, width: 72, height: 72, borderRadius: '50%', background: a.br, opacity: 0.85, filter: 'blur(2px)' }} />
+                    <div style={{ position: 'absolute', bottom: 28, right: 8, width: 80, height: 80, opacity: 0.12, pointerEvents: 'none' }}>{icon}</div>
+                    <div style={{ position: 'relative', fontWeight: 900, fontSize: 40, color: '#0C0C0C', opacity: 0.10, lineHeight: 1 }}>{s.n}</div>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: '#0C0C0C', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, lineHeight: 1.3 }}>{s.name}</div>
+                      <div style={{ fontWeight: 300, fontSize: 11.5, color: '#0C0C0C', opacity: 0.55, lineHeight: 1.65 }}>{s.desc}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── MOBILE: existing list layout ── */}
+      <div className="lg:hidden py-20 sm:py-24">
+        <FadeIn as="h2" y={40} className="font-black text-center mb-16 sm:mb-20" style={{ color: 'var(--services-text)', fontSize: 'clamp(3rem, 12vw, 160px)', lineHeight: 1 }}>
+          Services
+        </FadeIn>
+        <div className="max-w-5xl mx-auto">
+          {SERVICES.map((s, i) => (
+            <FadeIn
+              key={s.n}
+              delay={i * 0.08}
+              y={28}
+              className="services-row flex items-start gap-6 sm:gap-8 py-8 sm:py-10"
+              style={{
+                borderTop: '1px solid var(--services-border)',
+                borderBottom: i === SERVICES.length - 1 ? '1px solid var(--services-border)' : 'none'
+              }}
+            >
+              <div className="services-num font-black leading-none shrink-0" style={{ color: 'var(--services-text)', fontSize: 'clamp(2.8rem, 9vw, 130px)' }}>{s.n}</div>
+              <div className="flex flex-col gap-3 sm:gap-4 pt-1 sm:pt-3">
+                <div className="font-medium uppercase leading-tight" style={{ color: 'var(--services-text)', fontSize: 'clamp(1rem, 2.1vw, 2rem)' }}>{s.name}</div>
+                <div className="font-light leading-relaxed max-w-2xl" style={{ color: 'var(--services-text)', opacity: 0.55, fontSize: 'clamp(0.82rem, 1.5vw, 1.2rem)' }}>{s.desc}</div>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
       </div>
     </section>
   );
