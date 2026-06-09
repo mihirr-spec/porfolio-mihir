@@ -467,6 +467,9 @@ function HeroSection() {
           >
             <span className="hero-line1">Hi,</span><span className="hero-line2"> I&apos;m Mihir</span>
           </FadeIn>
+          <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap' }}>
+            Full-Stack &amp; AI Developer — React, TypeScript, Python, FastAPI
+          </span>
         </M.div>
 
         {/* Mobile-only: bio text + resume button directly under heading */}
