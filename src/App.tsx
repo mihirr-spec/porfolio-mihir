@@ -140,6 +140,7 @@ interface ProjectItem {
 
 interface ProjectImageProps {
   src: string;
+  alt?: string;
   fit?: string;
   pos?: string;
   zoom?: number;
@@ -860,7 +861,7 @@ function JtCardCover({ item, imgSrc, btnPos = {} }: JtCardCoverProps) {
     <div ref={ref} className="jt-card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
       <img
         src={imgSrc}
-        alt="cover"
+        alt={`${item.title} at ${item.subtitle}`}
         style={{
           width: '100%',
           height: 'auto',
@@ -1375,7 +1376,7 @@ const PROJECTS: ProjectItem[] = [
   },
 ];
 
-function ProjectImage({ src, fit = 'cover', pos = 'center', zoom = 1 }: ProjectImageProps) {
+function ProjectImage({ src, alt = '', fit = 'cover', pos = 'center', zoom = 1 }: ProjectImageProps) {
   const [err, setErr] = useState<boolean>(false);
   const empty = !src || src.trim() === '' || err;
   return (
@@ -1394,7 +1395,7 @@ function ProjectImage({ src, fit = 'cover', pos = 'center', zoom = 1 }: ProjectI
       {!empty && (
         <img
           src={src}
-          alt=""
+          alt={alt}
           loading="lazy"
           className="absolute inset-0 w-full h-full"
           style={{ objectFit: fit as CSSProperties['objectFit'], objectPosition: pos, borderRadius: 'inherit', transform: zoom !== 1 ? `scale(${zoom})` : undefined, transformOrigin: 'center center' }}
@@ -1496,13 +1497,13 @@ function ProjectCard({ project, index, total, progress, range }: ProjectCardProp
           {/* RIGHT: image grid */}
           <div className="project-image-grid flex-1 grid grid-cols-2 grid-rows-2 gap-2 p-3 md:p-4" style={{ minHeight: 0 }}>
             <div className="col-start-1 row-start-1 rounded-[14px] md:rounded-[18px] overflow-hidden">
-              <ProjectImage src={project.img1} pos="top" />
+              <ProjectImage src={project.img1} alt={`${project.name} screenshot 1`} pos="top" />
             </div>
             <div className="col-start-2 row-start-1 row-span-2 rounded-[14px] md:rounded-[18px] overflow-hidden">
-              <ProjectImage src={project.img3} fit={project.img3Fit ?? 'cover'} pos={project.img3Pos ?? 'top'} zoom={project.img3Zoom ?? 1} />
+              <ProjectImage src={project.img3} alt={`${project.name} screenshot 3`} fit={project.img3Fit ?? 'cover'} pos={project.img3Pos ?? 'top'} zoom={project.img3Zoom ?? 1} />
             </div>
             <div className="col-start-1 row-start-2 rounded-[14px] md:rounded-[18px] overflow-hidden">
-              <ProjectImage src={project.img2} fit={project.img2Fit ?? 'cover'} pos="top" zoom={project.img2Zoom ?? 1} />
+              <ProjectImage src={project.img2} alt={`${project.name} screenshot 2`} fit={project.img2Fit ?? 'cover'} pos="top" zoom={project.img2Zoom ?? 1} />
             </div>
           </div>
         </div>
