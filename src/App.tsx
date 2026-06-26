@@ -109,7 +109,16 @@ interface BtnPos {
 interface JtCardCoverProps {
   item: JourneyItem;
   imgSrc: string;
+  pixelColor?: string;
   btnPos?: BtnPos;
+}
+
+interface PixelRevealProps {
+  imgSrc: string;
+  alt: string;
+  pixelColor: string;
+  gridSize?: number;
+  duration?: number;
 }
 
 interface JtCardProps {
@@ -844,8 +853,67 @@ function MediumIcon() {
 
 // ─── Journey Cards ────────────────────────────────────────────
 
-function JtCardCover({ item, imgSrc, btnPos = {} }: JtCardCoverProps) {
-  const [hovered, setHovered] = useState<boolean>(false);
+// Reveals the cover image once via a pixelated dissolve when it scrolls
+// into view. Plays a single time per page load (no persistence), so a fresh
+// visit replays it.
+function PixelReveal({ imgSrc, alt, pixelColor, gridSize = 14, duration = 0.6 }: PixelRevealProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const playedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    grid.innerHTML = '';
+    const size = 100 / gridSize;
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        const pixel = document.createElement('div');
+        pixel.classList.add('pixel-reveal__pixel');
+        pixel.style.backgroundColor = pixelColor;
+        pixel.style.width = `${size}%`;
+        pixel.style.height = `${size}%`;
+        pixel.style.left = `${col * size}%`;
+        pixel.style.top = `${row * size}%`;
+        grid.appendChild(pixel);
+      }
+    }
+  }, [gridSize, pixelColor]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    const grid = gridRef.current;
+    if (!el || !grid) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting || playedRef.current) return;
+        playedRef.current = true;
+        const pixels = grid.querySelectorAll<HTMLDivElement>('.pixel-reveal__pixel');
+        const staggerDuration = duration / pixels.length;
+        gsap.to(pixels, {
+          autoAlpha: 0,
+          duration: 0,
+          delay: 0.15,
+          stagger: { each: staggerDuration, from: 'random' },
+          onComplete: () => { grid.style.display = 'none'; },
+        });
+        obs.disconnect();
+      },
+      { threshold: 0.35 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [duration]);
+
+  return (
+    <div ref={containerRef} className="pixel-reveal">
+      <img src={imgSrc} alt={alt} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      <div className="pixel-reveal__grid" ref={gridRef} />
+    </div>
+  );
+}
+
+function JtCardCover({ item, imgSrc, pixelColor = '#ffffff', btnPos = {} }: JtCardCoverProps) {
   const [btnHovered, setBtnHovered] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -862,19 +930,7 @@ function JtCardCover({ item, imgSrc, btnPos = {} }: JtCardCoverProps) {
 
   return (
     <div ref={ref} className="jt-card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
-      <img
-        src={imgSrc}
-        alt={`${item.title} at ${item.subtitle}`}
-        style={{
-          width: '100%',
-          height: 'auto',
-          display: 'block',
-          transition: 'filter 0.3s ease',
-          filter: hovered ? 'brightness(1.08)' : 'brightness(1)',
-        }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      />
+      <PixelReveal imgSrc={imgSrc} alt={`${item.title} at ${item.subtitle}`} pixelColor={pixelColor} />
       <a
         href={item.btnHref}
         target="_blank"
@@ -899,6 +955,7 @@ function JtCardCover({ item, imgSrc, btnPos = {} }: JtCardCoverProps) {
           transition: 'all 0.2s ease',
           textDecoration: 'none',
           cursor: 'pointer',
+          zIndex: 4,
         }}
       >
         <MediumIcon />
@@ -1048,7 +1105,7 @@ function JourneySection() {
               {i === 0
                 ? <JtCardCover item={item} imgSrc="/images/GDG.webp" btnPos={{ bottom: '6%', left: '12%', right: '12%', height: '7%' }} />
                 : i === 1
-                ? <JtCardCover item={item} imgSrc="/images/DD.webp" btnPos={{ bottom: '6.25%', left: '5%', right: '23%', height: '7%' }} />
+                ? <JtCardCover item={item} imgSrc="/images/DD.webp" pixelColor="#0a0a12" btnPos={{ bottom: '6.25%', left: '5%', right: '23%', height: '7%' }} />
                 : <JtCard item={item} />}
             </div>
           ))}

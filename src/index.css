@@ -263,6 +263,13 @@
   .jt-btn:hover { background: var(--ta12); border-color: var(--ta30); gap: 14px; }
   .jt-btn svg.arrow { width: 13px; height: 13px; transition: transform 0.2s; }
   .jt-btn:hover svg.arrow { transform: translateX(2px); }
+
+  /* One-time pixelated reveal of journey cover images */
+  .pixel-reveal { position: relative; width: 100%; display: block; }
+  .pixel-reveal__grid {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  }
+  .pixel-reveal__pixel { position: absolute; }
   @media (max-width: 768px) {
     .jt-line, .jt-prog, .jt-tip { left: 12px; }
     .jt-prog { transform: scaleY(0); transform-origin: top left; }
