@@ -487,9 +487,11 @@ function HeroSection() {
             A computer science student at Manipal University Jaipur, focusing on building AI-powered platforms, full-stack web applications, and developer-friendly experiences.
           </p>
           <a
-            href="/MihirSanghvi.pdf"
+            href="/MihirSanghvi_resume.pdf"
+            download="MihirSanghvi_resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => window.open('/MihirSanghvi_resume.pdf', '_blank', 'noopener,noreferrer')}
             className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-8 py-3 text-xs"
           >
             <span className="btn-default inline-flex items-center gap-3">
@@ -764,9 +766,11 @@ function AboutSection() {
         />
         <FadeIn delay={0.2}>
           <a
-            href="/MihirSanghvi.pdf"
+            href="/MihirSanghvi_resume.pdf"
+            download="MihirSanghvi_resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => window.open('/MihirSanghvi_resume.pdf', '_blank', 'noopener,noreferrer')}
             className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-xs sm:text-sm"
           >
             <span className="btn-default inline-flex items-center gap-3">
