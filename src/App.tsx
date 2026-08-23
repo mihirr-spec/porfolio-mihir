@@ -95,8 +95,8 @@ interface JourneyItem {
   desc: string;
   highlights: Highlight[];
   tags: string[];
-  btnLabel: string;
-  btnHref: string;
+  btnLabel?: string;
+  btnHref?: string;
 }
 
 interface BtnPos {
@@ -815,23 +815,20 @@ const JT_DATA: JourneyItem[] = [
     btnLabel: 'Read on Medium',
     btnHref: 'https://medium.com/@dsc.muj',
   },
-  {
+    {
     side: 'right',
-    date: 'Nov - Dec 2025',
-    title: 'Technical Writer',
-    subtitle: 'The Digital Dose',
-    desc: 'Translating complex platforms into approachable reads for a Medium audience: AI, Web3, and emerging tech that gets read, clapped, and shared.',
+    date: 'July 2026 - August 2026',
+    title: 'AI Trainer and Evaluation Specialist',
+    subtitle: 'Handshake AI',
+    desc: 'Designing multi-hop research prompts that break GPT-5.5 Pro - red-teaming frontier AI so it fails where humans wouldn’t.',
     highlights: [
-      { col: 'jt-ic-rose',   label: 'Articles Shipped',  detail: '6 technical articles on AI, Web3 and emerging tech in under 8 weeks', icon: 'pen' },
-      { col: 'jt-ic-green',  label: 'Engagement',        detail: '400+ claps and ~600 views accumulated across pieces', icon: 'thumb' },
-      { col: 'jt-ic-amber',  label: 'Top Article',       detail: 'Web3 piece hit 104 claps, topping the publication run', icon: 'star' },
-      { col: 'jt-ic-blue',   label: 'Explained Simply',  detail: 'Made Satsuma, Sarvam & GPT-5.1 accessible to general readers', icon: 'layers' },
+      { col: 'jt-ic-green',  label: 'Tasks Delivered', detail: '28+ red-team prompts across History, Law & Government - 17 RTD, 3 in Audit, 8 in R1 Review', icon: 'file' },
+      { col: 'jt-ic-blue',   label: 'Approval Rate',   detail: '91% approval with a 3.3/5 quality score - 0.1 major and 0.1 minor issues per task', icon: 'award' },
+      { col: 'jt-ic-rose',   label: 'Model Failure',   detail: '90%+ failure rate on GPT-5.5 Pro Thinking Extended per submission using multi-hop search chains', icon: 'trending' },
+      { col: 'jt-ic-amber',  label: 'Source Depth',    detail: '6-8 step golden trajectories per task, each chaining 3+ independent government & archival sources', icon: 'layers' },
     ],
-    tags: ['AI', 'Web3', 'Satsuma', 'Sarvam', 'GPT-5.1'],
-    btnLabel: 'Read on Medium',
-    btnHref: 'https://medium.com/@thedigitaldose25',
-  },
-];
+    tags: ['AI Red Teaming', 'GPT-5.5 Pro', 'Multi-Hop Reasoning', 'Prompt Engineering', 'Government Sources', 'Adaptive Testing'],
+  },];
 
 // ─── Journey Icons ────────────────────────────────────────────
 
@@ -1016,13 +1013,15 @@ function JtCard({ item }: JtCardProps) {
       <div className="flex flex-wrap mb-1">
         {item.tags.map((t, ti) => <span key={ti} className="jt-tag">{t}</span>)}
       </div>
-      <a href={item.btnHref} target="_blank" rel="noopener noreferrer" className="jt-btn">
-        <MediumIcon />
-        {item.btnLabel}
-        <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </a>
+      {item.btnHref && (
+        <a href={item.btnHref} target="_blank" rel="noopener noreferrer" className="jt-btn">
+          <MediumIcon />
+          {item.btnLabel}
+          <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+      )}
     </div>
   );
 }
@@ -1110,8 +1109,6 @@ function JourneySection() {
               <span className="jt-date-pill">{item.date}</span>
               {i === 0
                 ? <JtCardCover item={item} imgSrc="/images/GDG.webp" btnPos={{ bottom: '6%', left: '12%', right: '12%', height: '7%' }} />
-                : i === 1
-                ? <JtCardCover item={item} imgSrc="/images/DD.webp" pixelColor="#0a0a12" btnPos={{ bottom: '6.25%', left: '5%', right: '23%', height: '7%' }} />
                 : <JtCard item={item} />}
             </div>
           ))}
