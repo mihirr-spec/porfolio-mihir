@@ -815,7 +815,7 @@ const JT_DATA: JourneyItem[] = [
     btnLabel: 'Read on Medium',
     btnHref: 'https://medium.com/@dsc.muj',
   },
-    {
+  {
     side: 'right',
     date: 'July 2026 - August 2026',
     title: 'AI Trainer and Evaluation Specialist',
