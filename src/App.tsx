@@ -488,7 +488,8 @@ function HeroSection() {
           </p>
           <a
             href="/MihirSanghvi.pdf"
-            download
+            target="_blank"
+            rel="noopener noreferrer"
             className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-8 py-3 text-xs"
           >
             <span className="btn-default inline-flex items-center gap-3">
@@ -497,7 +498,7 @@ function HeroSection() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Download Resume
+              View Resume
             </span>
             <span className="btn-hover font-medium uppercase tracking-widest text-xs">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -505,7 +506,7 @@ function HeroSection() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Download Resume
+              View Resume
             </span>
           </a>
         </div>
@@ -764,7 +765,8 @@ function AboutSection() {
         <FadeIn delay={0.2}>
           <a
             href="/MihirSanghvi.pdf"
-            download
+            target="_blank"
+            rel="noopener noreferrer"
             className="resume-btn inline-flex items-center gap-3 rounded-full font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-xs sm:text-sm"
           >
             <span className="btn-default inline-flex items-center gap-3">
@@ -773,7 +775,7 @@ function AboutSection() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Download Resume
+              View Resume
             </span>
             <span className="btn-hover font-medium uppercase tracking-widest text-xs sm:text-sm">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -781,7 +783,7 @@ function AboutSection() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Download Resume
+              View Resume
             </span>
           </a>
         </FadeIn>
