@@ -70,6 +70,14 @@
 
     /* Mobile-only elements hidden on desktop */
     .hero-mobile-bio { display: none; }
+    /* Desktop-only hero CTA */
+    .hero-desktop-cta {
+      display: flex;
+      justify-content: center;
+      margin-top: 36px;
+      position: relative;
+      z-index: 1;
+    }
     .marquee-mobile-grid { display: none; }
 
 
@@ -336,6 +344,7 @@
     line-height: 0.93 !important;
   }
   .hero-line1, .hero-line2 { display: block !important; }
+  .hero-desktop-cta { display: none !important; }
   /* Hide the desktop subtitle */
   .hero-subtitle { display: none !important; }
 
