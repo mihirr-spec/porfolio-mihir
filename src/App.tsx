@@ -272,6 +272,7 @@ function LiveProjectButton({ href = '#', className = '' }: LiveProjectButtonProp
 // ─── NavBar ───────────────────────────────────────────────────
 
 const NAV_LINKS = [
+  { label: 'Home',     id: 'home' },
   { label: 'About',    id: 'about' },
   { label: 'Projects', id: 'projects' },
   { label: 'Journey',  id: 'journey' },
@@ -340,7 +341,9 @@ function NavBar() {
   const handleNavClick = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     setMenuOpen(false);
-    if (id === 'contact') {
+    if (id === 'home') {
+      smoothScrollTo(0);
+    } else if (id === 'contact') {
       smoothScrollTo(document.body.scrollHeight);
     } else {
       const targetId = id === 'projects' ? 'projects-cards' : id;
@@ -461,6 +464,7 @@ function HeroSection() {
 
   return (
     <section
+      id="home"
       ref={sectionRef}
       className="h-screen flex flex-col relative pt-[60px] md:pt-[68px]"
       style={{ overflowX: 'clip', background: 'var(--bg)' }}
