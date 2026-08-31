@@ -779,16 +779,19 @@ function MarqueeSection() {
 
     rowRefs.current.forEach((row, ri) => {
       if (!row) return;
-      const dir   = dirs[ri];
-      const dist  = window.innerWidth * 0.55 * dir;
-      gsap.set(row, { x: -dist / 2 });
+      const dir  = dirs[ri];
+      // Travel is a share of the viewport width, so read it per update rather
+      // than once on mount — otherwise a resize or orientation change leaves
+      // the rows drifting against a stale distance.
+      const dist = () => window.innerWidth * 0.55 * dir;
+      gsap.set(row, { x: -dist() / 2 });
       const st = ScrollTrigger.create({
         trigger: section,
         start: 'top bottom',
         end: 'bottom top',
         scrub: 1.2,
         onUpdate: (self) => {
-          gsap.set(row, { x: (self.progress - 0.5) * dist });
+          gsap.set(row, { x: (self.progress - 0.5) * dist() });
         },
       });
       triggers.push(st);
