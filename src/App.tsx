@@ -1778,13 +1778,16 @@ function Footer() {
 function App() {
   return (
     <div style={{ overflowX: 'clip', background: 'var(--bg)' }}>
+      <a href="#home" className="skip-link">Skip to content</a>
       <NavBar />
-      <HeroSection />
-      <MarqueeSection />
-      <AboutSection />
-      <ProjectsSection />
-      <JourneySection />
-      <ServicesSection />
+      <main>
+        <HeroSection />
+        <MarqueeSection />
+        <AboutSection />
+        <ProjectsSection />
+        <JourneySection />
+        <ServicesSection />
+      </main>
       <Footer />
     </div>
   );

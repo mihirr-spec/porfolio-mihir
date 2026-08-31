@@ -438,3 +438,28 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Skip link ──
+   Off-screen until focused, so keyboard users can jump past the nav. */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  transform: translateY(-120%);
+  padding: 12px 20px;
+  border-radius: 0 0 10px 0;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
