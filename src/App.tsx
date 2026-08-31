@@ -664,6 +664,34 @@ function TechTile({ name, icon, invert = false }: TechItem) {
 
 // ─── Mobile Tech Constellation ────────────────────────────────
 
+// Static layout data — hoisted out of the component so the node list and
+// edge table are built once instead of on every theme toggle / re-render.
+const CN_NODES: ConstellationNode[] = [
+  { id:'python',   label:'Python',     cat:'backend',  cx:250, cy:75,  icon:_DI+'python/python-original.svg'          },
+  { id:'fastapi',  label:'FastAPI',    cat:'backend',  cx:382, cy:123, icon:_DI+'fastapi/fastapi-original.svg'        },
+  { id:'nodejs',   label:'Node.js',    cat:'backend',  cx:452, cy:244, icon:_DI+'nodejs/nodejs-original.svg'          },
+  { id:'pytorch',  label:'PyTorch',    cat:'backend',  cx:428, cy:383, icon:_DI+'pytorch/pytorch-original.svg'        },
+  { id:'postgres', label:'PostgreSQL', cat:'data',     cx:320, cy:473, icon:_DI+'postgresql/postgresql-original.svg'  },
+  { id:'mongo',    label:'MongoDB',    cat:'data',     cx:180, cy:473, icon:_DI+'mongodb/mongodb-original.svg'        },
+  { id:'docker',   label:'Docker',     cat:'infra',    cx:72,  cy:383, icon:_DI+'docker/docker-original.svg'          },
+  { id:'aws',      label:'AWS',        cat:'infra',    cx:48,  cy:244, icon:_DI+'amazonwebservices/amazonwebservices-original-wordmark.svg' },
+  { id:'git',      label:'Git',        cat:'infra',    cx:118, cy:123, icon:_DI+'git/git-original.svg'                },
+  { id:'react',    label:'React',      cat:'frontend', cx:308, cy:180, icon:_DI+'react/react-original.svg'            },
+  { id:'ts',       label:'TypeScript', cat:'frontend', cx:365, cy:280, icon:_DI+'typescript/typescript-original.svg'  },
+  { id:'tailwind', label:'Tailwind',   cat:'frontend', cx:308, cy:380, icon:_DI+'tailwindcss/tailwindcss-original.svg'},
+  { id:'js',       label:'JavaScript', cat:'frontend', cx:193, cy:380, icon:_DI+'javascript/javascript-original.svg'  },
+  { id:'next',     label:'Next.js',    cat:'frontend', cx:135, cy:280, icon:_DI+'nextjs/nextjs-original.svg'          },
+  { id:'supa',     label:'Supabase',   cat:'data',     cx:193, cy:180, icon:_DI+'supabase/supabase-original.svg'      },
+  { id:'k8s',      label:'Kubernetes', cat:'infra',    cx:250, cy:280, icon:_DI+'kubernetes/kubernetes-plain.svg'     },
+];
+
+const CN_EDGES: [number, number][] = [
+  [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],
+  [9,10],[10,11],[11,12],[12,13],[13,14],[14,9],
+  [0,14],[0,9],[1,9],[2,10],[3,11],[4,11],[5,12],[6,13],[7,13],[8,14],
+  [15,9],[15,11],[15,13],
+];
+
 function MobileTechConstellation() {
   const [dark, setDark] = useState<boolean>(() => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
   useEffect(() => {
@@ -681,33 +709,6 @@ function MobileTechConstellation() {
   };
   const lnCol = dark ? 'rgba(180,210,230,0.14)' : 'rgba(10,30,80,0.09)';
 
-  const ICO = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/';
-  const NODES: ConstellationNode[] = [
-    { id:'python',   label:'Python',     cat:'backend',  cx:250, cy:75,  icon:ICO+'python/python-original.svg'          },
-    { id:'fastapi',  label:'FastAPI',    cat:'backend',  cx:382, cy:123, icon:ICO+'fastapi/fastapi-original.svg'        },
-    { id:'nodejs',   label:'Node.js',    cat:'backend',  cx:452, cy:244, icon:ICO+'nodejs/nodejs-original.svg'          },
-    { id:'pytorch',  label:'PyTorch',    cat:'backend',  cx:428, cy:383, icon:ICO+'pytorch/pytorch-original.svg'        },
-    { id:'postgres', label:'PostgreSQL', cat:'data',     cx:320, cy:473, icon:ICO+'postgresql/postgresql-original.svg'  },
-    { id:'mongo',    label:'MongoDB',    cat:'data',     cx:180, cy:473, icon:ICO+'mongodb/mongodb-original.svg'        },
-    { id:'docker',   label:'Docker',     cat:'infra',    cx:72,  cy:383, icon:ICO+'docker/docker-original.svg'          },
-    { id:'aws',      label:'AWS',        cat:'infra',    cx:48,  cy:244, icon:ICO+'amazonwebservices/amazonwebservices-original-wordmark.svg' },
-    { id:'git',      label:'Git',        cat:'infra',    cx:118, cy:123, icon:ICO+'git/git-original.svg'                },
-    { id:'react',    label:'React',      cat:'frontend', cx:308, cy:180, icon:ICO+'react/react-original.svg'            },
-    { id:'ts',       label:'TypeScript', cat:'frontend', cx:365, cy:280, icon:ICO+'typescript/typescript-original.svg'  },
-    { id:'tailwind', label:'Tailwind',   cat:'frontend', cx:308, cy:380, icon:ICO+'tailwindcss/tailwindcss-original.svg'},
-    { id:'js',       label:'JavaScript', cat:'frontend', cx:193, cy:380, icon:ICO+'javascript/javascript-original.svg'  },
-    { id:'next',     label:'Next.js',    cat:'frontend', cx:135, cy:280, icon:ICO+'nextjs/nextjs-original.svg'          },
-    { id:'supa',     label:'Supabase',   cat:'data',     cx:193, cy:180, icon:ICO+'supabase/supabase-original.svg'      },
-    { id:'k8s',      label:'Kubernetes', cat:'infra',    cx:250, cy:280, icon:ICO+'kubernetes/kubernetes-plain.svg'     },
-  ];
-
-  const EDGES: [number, number][] = [
-    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],
-    [9,10],[10,11],[11,12],[12,13],[13,14],[14,9],
-    [0,14],[0,9],[1,9],[2,10],[3,11],[4,11],[5,12],[6,13],[7,13],[8,14],
-    [15,9],[15,11],[15,13],
-  ];
-
   const IS = 13, GAP = 4, HPAD = 8, PH = 30, PR = 15;
   const tw  = (lbl: string) => lbl.length * 6.5;
   const cw  = (n: ConstellationNode) => IS + GAP + tw(n.label);
@@ -723,16 +724,16 @@ function MobileTechConstellation() {
       aria-label="Tech stack constellation"
     >
       <g>
-        {EDGES.map(([a, b], i) => (
+        {CN_EDGES.map(([a, b], i) => (
           <line key={i}
-            x1={NODES[a].cx} y1={NODES[a].cy}
-            x2={NODES[b].cx} y2={NODES[b].cy}
+            x1={CN_NODES[a].cx} y1={CN_NODES[a].cy}
+            x2={CN_NODES[b].cx} y2={CN_NODES[b].cy}
             stroke={lnCol} strokeWidth="1"
           />
         ))}
       </g>
       <g>
-        {NODES.map((n, i) => {
+        {CN_NODES.map((n, i) => {
           const c = C[n.cat];
           const w = pw(n);
           return (
