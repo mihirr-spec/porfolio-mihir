@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node prerender.mjs",
+    "build": "npm run typecheck && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node prerender.mjs",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=20.9"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
